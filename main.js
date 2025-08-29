@@ -28,6 +28,7 @@ const defaultLinks = [
   { label: "地図（デモ）", view: "map" },
   { label: "よくある質問", view: "faq" },
   { label: "メモ", view: "notes" },
+  { label: '橋場町行バス（平日）', view: 'bus_hashiba_weekday' },
 ];
 
 function renderLinks() {
@@ -77,6 +78,106 @@ const views = {
     w.appendChild(t);
     return w;
   },
+  bus_hashiba_weekday() {
+  const wrap = document.createElement('div');
+
+  const selOp = document.createElement('select');
+  selOp.innerHTML = `
+    <option value="all">事業者すべて</option>
+    <option value="北鉄バス">北鉄バスのみ</option>
+    <option value="JRバス">JRバスのみ</option>
+  `;
+  wrap.appendChild(selOp);
+
+  const list = document.createElement('div');
+  wrap.appendChild(list);
+
+  // ヘルパー
+  const toMin = (hhmm) => {
+    const [h, m] = hhmm.split(':').map(Number);
+    return h * 60 + m;
+  };
+
+  const nowMin = () => {
+    const n = new Date();
+    return n.getHours() * 60 + n.getMinutes();
+  };
+
+  const render = (data) => {
+    list.innerHTML = '';
+    const nmin = nowMin();
+
+    const ops = data.operators.filter(op =>
+      selOp.value === 'all' ? true : op.name === selOp.value
+    );
+
+    let candidates = [];
+    for (const op of ops) {
+      for (const item of op.weekday) {
+        const tmin = toMin(item.time);
+        if (tmin >= nmin) {
+          candidates.push({
+            operator: op.name,
+            time: item.time,
+            route: item.route,
+            dest: item.dest,
+            wait: tmin - nmin,
+            board: op.board_stop,
+            alight: op.alight_stop
+          });
+        }
+      }
+    }
+
+    // 翌日便補完
+    if (candidates.length === 0) {
+      for (const op of ops) {
+        for (const item of op.weekday.slice(0, 3)) {
+          const tmin = toMin(item.time) + 24 * 60;
+          candidates.push({
+            operator: op.name,
+            time: item.time,
+            route: item.route,
+            dest: item.dest,
+            wait: tmin - nmin,
+            board: op.board_stop,
+            alight: op.alight_stop
+          });
+        }
+      }
+    }
+
+    candidates.sort((a, b) => a.wait - b.wait);
+    const top3 = candidates.slice(0, 3);
+
+    if (!top3.length) {
+      list.appendChild(card('本日の運行なし', ''));
+      return;
+    }
+
+    top3.forEach(x => {
+      const info = x.route
+        ? `北鉄${x.route}番｜乗: ${x.board} → 降: ${x.alight}`
+        : `JR（行先: ${x.dest}）｜乗: ${x.board} → 降: ${x.alight}`;
+
+      const waitTxt = x.wait >= 60
+        ? `あと ${Math.floor(x.wait/60)}時間${x.wait%60}分`
+        : `あと ${x.wait}分`;
+
+      list.appendChild(card(`発車 ${x.time}`, `${waitTxt}｜${x.operator}｜${info}`));
+    });
+  };
+
+  fetch('./data/bus-hashibamachi-weekday.json')
+    .then(r => r.json())
+    .then(data => {
+      render(data);
+      selOp.addEventListener('change', () => render(data));
+    });
+
+  return wrap;
+}
+
 };
 
 function card(title, body) {
