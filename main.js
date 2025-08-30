@@ -193,8 +193,8 @@ const views = {
 
   // 事業者で画像を出し分け
   const imgSrc = (x.operator === '北鉄バス')
-    ? './images/JRBUS_frontof_hokurikubank.jpeg'
-    : './images/HOKUTETSUBUS_frontof_hoteltorifito.jpeg';
+    ? './images/HOKUTETSUBUS_frontof_hoteltorifito.jpeg'
+    : './images/JRBUS_frontof_hokurikubank.jpeg';
   const cap = (x.operator === '北鉄バス')
     ? '北鉄バス 乗り場：南町・尾山神社(トリフィ―ト前)'
     : 'JRバス 乗り場：南町・尾山神社(北陸銀行前)';
