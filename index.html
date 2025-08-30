@@ -126,6 +126,16 @@
         <div id="view" class="grid"></div>
       </section>
     </main>
+    <!-- 画像ライトボックス -->
+        <div id="lightbox" style="
+        position:fixed; inset:0; background:rgba(0,0,0,.7);
+        display:none; align-items:center; justify-content:center; z-index:9999;">
+        <div style="max-width:90vw; max-height:90vh; position:relative; background:#111827; border:1px solid #1f2937; border-radius:1rem; padding:.5rem">
+        <button id="lbClose" class="btn" style="position:absolute; right:.5rem; top:.5rem">閉じる</button>
+        <img id="lbImg" src="" alt="乗り場写真" style="max-width:86vw; max-height:80vh; display:block; border-radius:.5rem"/>
+        <div id="lbCap" class="muted" style="margin-top:.25rem"></div>
+    </div>
+    </div>
 
     <script src="./main.js" defer></script>
     <script>

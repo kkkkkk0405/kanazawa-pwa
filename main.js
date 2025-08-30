@@ -49,6 +49,25 @@ function renderLinks() {
   }
 }
 renderLinks();
+function showImage(src, caption=''){
+  const box = document.getElementById('lightbox');
+  const img = document.getElementById('lbImg');
+  const cap = document.getElementById('lbCap');
+  img.src = src;
+  cap.textContent = caption;
+  box.style.display = 'flex';
+}
+
+function hideImage(){
+  const box = document.getElementById('lightbox');
+  const img = document.getElementById('lbImg');
+  box.style.display = 'none';
+  img.src = '';
+}
+document.getElementById('lbClose').addEventListener('click', hideImage);
+document.getElementById('lightbox').addEventListener('click', (e)=>{
+  if(e.target.id === 'lightbox') hideImage(); // 背景クリックで閉じる
+});
 
 document.addEventListener("click", (e) => {
   const a = e.target.closest("a[data-open]");
@@ -156,16 +175,36 @@ const views = {
     }
 
     top3.forEach(x => {
-      const info = x.route
-        ? `北鉄${x.route}番｜乗: ${x.board} → 降: ${x.alight}`
-        : `JR（行先: ${x.dest}）｜乗: ${x.board} → 降: ${x.alight}`;
+  const info = x.route
+    ? `北鉄${x.route}番｜乗: ${x.board} → 降: ${x.alight}`
+    : `JR（行先: ${x.dest}）｜乗: ${x.board} → 降: ${x.alight}`;
 
-      const waitTxt = x.wait >= 60
-        ? `あと ${Math.floor(x.wait/60)}時間${x.wait%60}分`
-        : `あと ${x.wait}分`;
+  const waitTxt = x.wait >= 60
+    ? `あと ${Math.floor(x.wait/60)}時間${x.wait%60}分`
+    : `あと ${x.wait}分`;
 
-      list.appendChild(card(`発車 ${x.time}`, `${waitTxt}｜${x.operator}｜${info}`));
-    });
+  // カード本体
+  const c = card(`発車 ${x.time}`, `${waitTxt}｜${x.operator}｜${info}`);
+
+  // 画像ボタンを付ける
+  const btn = document.createElement('button');
+  btn.className = 'btn';
+  btn.textContent = '乗り場の写真を見る';
+
+  // 事業者で画像を出し分け
+  const imgSrc = (x.operator === '北鉄バス')
+    ? './images/JRBUS_frontof_hokurikubank.jpeg'
+    : './images/HOKUTETSUBUS_frontof_hoteltorifito.jpeg';
+  const cap = (x.operator === '北鉄バス')
+    ? '北鉄バス 乗り場：南町・尾山神社(トリフィ―ト前)'
+    : 'JRバス 乗り場：南町・尾山神社(北陸銀行前)';
+
+  btn.addEventListener('click', () => showImage(imgSrc, cap));
+  c.appendChild(document.createElement('div')).appendChild(btn);
+
+  list.appendChild(c);
+});
+
   };
 
   fetch('./data/bus-hashibamachi-weekday.json')
