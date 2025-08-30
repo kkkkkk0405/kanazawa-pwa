@@ -28,6 +28,9 @@ const defaultLinks = [
   { label: "地図（デモ）", view: "map" },
   { label: "よくある質問", view: "faq" },
   { label: "メモ", view: "notes" },
+];
+
+const transportation = [
   { label: '橋場町行バス（平日）', view: 'bus_hashiba_weekday' },
   { label: "橋場町行バス（土日祝）", view: "bus_hashiba_holiday" },
   { label: "橋場町行時刻表", view: "bus_hashiba_timetable" },
@@ -50,7 +53,25 @@ function renderLinks() {
     ul.appendChild(li);
   }
 }
+function renderTransport(){
+  const ul = $("#transportLinks");
+  if (!ul) return;
+  ul.innerHTML = "";
+  for (const { label, view } of transportation) {
+    const li = document.createElement("li");
+    const a  = document.createElement("a");
+    a.className = "link";
+    a.href = "#";
+    a.dataset.open = view;
+    a.textContent = label;
+    li.appendChild(a);
+    ul.appendChild(li);
+  }
+}
+
 renderLinks();
+renderTransport();
+
 function showImage(src, caption=''){
   const box = document.getElementById('lightbox');
   const img = document.getElementById('lbImg');
