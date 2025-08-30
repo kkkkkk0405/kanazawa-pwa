@@ -30,7 +30,7 @@ const defaultLinks = [
   { label: "メモ", view: "notes" },
   { label: '橋場町行バス（平日）', view: 'bus_hashiba_weekday' },
   { label: "橋場町行バス（土日祝）", view: "bus_hashiba_holiday" },
-  { label: "橋場町行時刻表（PDF）", view: "bus_hashiba_pdf" }  
+  { label: "橋場町行時刻表", view: "bus_hashiba_timetable" },
 ];
 
 function renderLinks() {
