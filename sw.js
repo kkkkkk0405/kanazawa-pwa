@@ -1,5 +1,5 @@
 // sw.js
-const CACHE_NAME = "tourist-app-v17";
+const CACHE_NAME = "tourist-app-v18";
 
 const APP_SHELL = [
   "./",

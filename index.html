@@ -92,6 +92,16 @@
       .warn {
         color: #f59e0b;
       }
+      /* 小見出しとグループ用 */
+      .subhead {
+        margin:.25rem 0 .5rem; 
+        font-size:1rem; 
+        color:#cbd5e1 
+      }
+      .tgroup  {
+         margin-top:1rem 
+      }
+
     </style>
   </head>
 
@@ -123,9 +133,21 @@
     </aside>
 
     <aside class="card">
-      <h2>交通</h2>
-      <ul id="transportLinks"></ul>
-    </aside>
+  <h2>交通</h2>
+
+  <!-- 橋場町行 グループ -->
+  <div class="tgroup">
+    <h3 class="subhead">橋場町行</h3>
+    <ul id="transportLinks__hashiba"></ul>
+  </div>
+
+  <!-- 県立図書館行き（将来用、いまは空） -->
+  <div class="tgroup">
+    <h3 class="subhead">県立図書館行き</h3>
+    <ul id="transportLinks__library"></ul>
+  </div>
+</aside>
+
   </div>
 
   <!-- 右カラム：ビュー -->

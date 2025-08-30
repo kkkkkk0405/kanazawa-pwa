@@ -52,25 +52,51 @@ function renderLinks() {
 // 左サイド：交通（固定 / ハッシュ遷移）
 // ==========================
 // ※ URLは分かれず #/bus/... のハッシュのみ変更（＝PWAは1ページのまま）
-const transportation = [
-  { label: "橋場町行バス（平日）",   hash: "#/bus/weekday"   },
-  { label: "橋場町行バス（土日祝）", hash: "#/bus/holiday"   },
-  { label: "橋場町行時刻表",         hash: "#/bus/timetable" },
-];
+// 交通リンク（グループ化）
+const transportation = {
+  hashiba: [
+    { label: '橋場町行バス（平日）',  view: 'bus_hashiba_weekday'   },
+    { label: '橋場町行バス（土日祝）', view: 'bus_hashiba_holiday'   },
+    { label: '橋場町行時刻表',        view: 'bus_hashiba_timetable' },
+  ],
+  library: [
+    // ここに 県立図書館 行きのリンクを今後追加
+    // 例）{ label: '県立図書館行（平日）', view: 'bus_library_weekday' }
+  ]
+};
+
 
 function renderTransport(){
-  const ul = $("#transportLinks");
-  if (!ul) return;
-  ul.innerHTML = "";
+  // 橋場町行
+  const ulHashiba = document.getElementById('transportLinks__hashiba');
+  if (ulHashiba){
+    ulHashiba.innerHTML = '';
+    for (const { label, view } of transportation.hashiba){
+      const li = document.createElement('li');
+      const a  = document.createElement('a');
+      a.className = 'link';
+      a.href = '#';
+      a.dataset.open = view;
+      a.textContent = label;
+      li.appendChild(a);
+      ulHashiba.appendChild(li);
+    }
+  }
 
-  for (const { label, hash } of transportation) {
-    const li = document.createElement("li");
-    const a  = document.createElement("a");
-    a.className = "link";
-    a.href = hash;               // ← data-open は付けない（ハッシュでルーティング）
-    a.textContent = label;
-    li.appendChild(a);
-    ul.appendChild(li);
+  // 県立図書館行き（まだ空でもOK）
+  const ulLib = document.getElementById('transportLinks__library');
+  if (ulLib){
+    ulLib.innerHTML = '';
+    for (const { label, view } of transportation.library){
+      const li = document.createElement('li');
+      const a  = document.createElement('a');
+      a.className = 'link';
+      a.href = '#';
+      a.dataset.open = view;
+      a.textContent = label;
+      li.appendChild(a);
+      ulLib.appendChild(li);
+    }
   }
 }
 
