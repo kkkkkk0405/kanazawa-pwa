@@ -337,18 +337,18 @@ bus_hashiba_holiday() {
 },
 bus_hashiba_pdf() {
   const wrap = document.createElement("div");
-  wrap.appendChild(card("橋場町行 時刻表", "下のボタンからPDFを開けます。"));
+  wrap.appendChild(card("橋場町行 時刻表", "PDFを埋め込み表示しています。拡大縮小して確認できます。"));
 
-  const btn = document.createElement("button");
-  btn.className = "btn";
-  btn.textContent = "全時刻表（PDF）を見る";
-  btn.addEventListener("click", () => {
-    window.open("./docs/hashibacho-202503.pdf", "_blank");
-  });
+  const iframe = document.createElement("iframe");
+  iframe.src = "./docs/hashibacho-202503.pdf";
+  iframe.style.width = "100%";
+  iframe.style.height = "80vh"; // 画面の8割くらいの高さ
+  iframe.style.border = "none";
 
-  wrap.appendChild(btn);
+  wrap.appendChild(iframe);
   return wrap;
 }
+
 
 };
 
