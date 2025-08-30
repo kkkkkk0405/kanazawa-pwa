@@ -335,17 +335,19 @@ bus_hashiba_holiday() {
 
   return wrap;
 },
-bus_hashiba_pdf() {
+bus_hashiba_timetable() {
   const wrap = document.createElement("div");
-  wrap.appendChild(card("橋場町行 時刻表", "PDFを埋め込み表示しています。拡大縮小して確認できます。"));
+  wrap.appendChild(card("橋場町行 時刻表", "平日・土日祝のダイヤをまとめて表示しています。"));
 
-  const iframe = document.createElement("iframe");
-  iframe.src = "./docs/hashibacho-202503.pdf";
-  iframe.style.width = "100%";
-  iframe.style.height = "80vh"; // 画面の8割くらいの高さ
-  iframe.style.border = "none";
+  const img = document.createElement("img");
+  img.src = "./images/hashibacho-202503.png";
+  img.alt = "橋場町行バス時刻表";
+  img.style.maxWidth = "100%";
+  img.style.height = "auto";
+  img.style.border = "1px solid #1f2937";
+  img.style.borderRadius = "0.5rem";
 
-  wrap.appendChild(iframe);
+  wrap.appendChild(img);
   return wrap;
 }
 

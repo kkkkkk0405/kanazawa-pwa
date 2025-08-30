@@ -10,10 +10,11 @@ const APP_SHELL = [
   "./icons/icon-512.png",
   "./images/JRBUS_frontof_hokurikubank.jpeg",
   "./images/HOKUTETSUBUS_frontof_hoteltorifito.jpeg",
+  "./images/hashibacho-202503.png",
   // 追加：橋場町（平日）データをオフラインキャッシュ
   "./data/bus-hashibamachi-weekday.json",
   "./data/bus-hashibamachi-weekend-holidays.json",
-  "./docs/hashibacho-202503.pdf",
+  
 ];
 
 self.addEventListener("install", (event) => {
