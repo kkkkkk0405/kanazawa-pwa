@@ -103,37 +103,35 @@
     </header>
 
 <main>
-  <!-- クイックリンク -->
-  <aside class="card">
-    <h2>クイックリンク（編集可）</h2>
-    <ul id="quickLinks">
-      <li><a class="link" href="#" data-open="map">地図（デモ）</a></li>
-      <li><a class="link" href="#" data-open="faq">よくある質問</a></li>
-      <li><a class="link" href="#" data-open="notes">メモ</a></li>
-    </ul>
+  <!-- 左カラム全体 -->
+  <div class="sidebar">
+    <!-- クイックリンク -->
+    <aside class="card">
+      <h2>クイックリンク（編集可）</h2>
+      <ul id="quickLinks"></ul>
+      <div style="margin-top: 1rem; display: flex; gap: 0.5rem">
+        <button id="editLinks">リンク編集</button>
+        <button id="resetLinks">初期化</button>
+      </div>
+      <p style="color: #9ca3af; margin-top: 0.75rem">
+        リンクや設定はオフラインでも保存されます（この端末のみ）。
+      </p>
+    </aside>
 
-    <div style="margin-top: 1rem; display: flex; gap: 0.5rem">
-      <button id="editLinks">リンク編集</button>
-      <button id="resetLinks">初期化</button>
-    </div>
+    <!-- 交通 -->
+    <aside class="card">
+      <h2>交通</h2>
+      <ul id="transportLinks"></ul>
+    </aside>
+  </div>
 
-    <p style="color: #9ca3af; margin-top: 0.75rem">
-      リンクや設定はオフラインでも保存されます（この端末のみ）。
-    </p>
-  </aside>
-
-  <!-- 交通（固定リスト） -->
-  <aside class="card">
-    <h2>交通</h2>
-    <ul id="transportLinks"></ul>
-  </aside>
-
-  <!-- ビュー -->
+  <!-- 右のビュー -->
   <section class="card">
     <h2 id="viewTitle">ホーム</h2>
     <div id="view" class="grid"></div>
   </section>
 </main>
+
 
     <!-- 画像ライトボックス -->
         <div id="lightbox" style="
