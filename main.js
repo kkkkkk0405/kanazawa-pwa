@@ -312,8 +312,8 @@ bus_hashiba_holiday() {
       btn.textContent = '乗り場の写真を見る';
 
       const imgSrc = (x.operator === '北鉄バス')
-        ? './images/board-hokutetsu.jpg'
-        : './images/board-jr.jpg';
+        ? './images/HOKUTETSUBUS_frontof_hoteltorifito.jpeg'
+        : './images/JRBUS_frontof_hokurikubank.jpeg';
       const cap = (x.operator === '北鉄バス')
         ? '北鉄バス 乗り場：南町・尾山神社(トリフィ―ト前)'
         : 'JRバス 乗り場：南町・尾山神社(北陸銀行前)';
