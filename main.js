@@ -29,7 +29,8 @@ const defaultLinks = [
   { label: "よくある質問", view: "faq" },
   { label: "メモ", view: "notes" },
   { label: '橋場町行バス（平日）', view: 'bus_hashiba_weekday' },
-  { label: "橋場町行バス（土日祝）", view: "bus_hashiba_holiday" }
+  { label: "橋場町行バス（土日祝）", view: "bus_hashiba_holiday" },
+  { label: "橋場町行時刻表（PDF）", view: "bus_hashiba_pdf" }  
 ];
 
 function renderLinks() {
@@ -332,6 +333,20 @@ bus_hashiba_holiday() {
       selOp.addEventListener('change', () => render(data));
     });
 
+  return wrap;
+},
+bus_hashiba_pdf() {
+  const wrap = document.createElement("div");
+  wrap.appendChild(card("橋場町行 時刻表", "下のボタンからPDFを開けます。"));
+
+  const btn = document.createElement("button");
+  btn.className = "btn";
+  btn.textContent = "全時刻表（PDF）を見る";
+  btn.addEventListener("click", () => {
+    window.open("./docs/hashibacho-202503.pdf", "_blank");
+  });
+
+  wrap.appendChild(btn);
   return wrap;
 }
 

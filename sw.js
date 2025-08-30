@@ -1,5 +1,5 @@
 // sw.js
-const CACHE_NAME = "tourist-app-v7";
+const CACHE_NAME = "tourist-app-v8";
 
 const APP_SHELL = [
   "./",
@@ -13,6 +13,7 @@ const APP_SHELL = [
   // 追加：橋場町（平日）データをオフラインキャッシュ
   "./data/bus-hashibamachi-weekday.json",
   "./data/bus-hashibamachi-weekend-holidays.json",
+  "./docs/hashibacho-202503.pdf",
 ];
 
 self.addEventListener("install", (event) => {
