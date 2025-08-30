@@ -1,5 +1,5 @@
 // sw.js
-const CACHE_NAME = "tourist-app-v5";
+const CACHE_NAME = "tourist-app-v7";
 
 const APP_SHELL = [
   "./",
@@ -12,6 +12,7 @@ const APP_SHELL = [
   "./images/HOKUTETSUBUS_frontof_hoteltorifito.jpeg",
   // 追加：橋場町（平日）データをオフラインキャッシュ
   "./data/bus-hashibamachi-weekday.json",
+  "./data/bus-hashibamachi-weekend-holidays.json",
 ];
 
 self.addEventListener("install", (event) => {
