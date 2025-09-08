@@ -141,7 +141,7 @@ document.addEventListener("click", (e) => {
 // 注意：本番ではAPIキーは環境変数やSecretsに保管し、直書きしないこと！
 async function loadSeats() {
   const API_URL = "https://shirakawa-takaoka-api.onrender.com/seats";
-  const API_KEY = "あなたのAPI_SECRET"; // 暫定：公開リポ直書きはNGだがまずは確認用
+  const API_KEY = "sk_live_123456"; // 暫定：公開リポ直書きはNGだがまずは確認用
   const today = new Date().toISOString().slice(0,10);
 
   const url = `${API_URL}?from=kanazawa&to=shirakawago&todate=${today}`;
