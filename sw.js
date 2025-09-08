@@ -1,5 +1,5 @@
 // sw.js
-const CACHE_NAME = "tourist-app-v18";
+const CACHE_NAME = "tourist-app-v19";
 
 const APP_SHELL = [
   "./",
@@ -11,7 +11,6 @@ const APP_SHELL = [
   "./images/JRBUS_frontof_hokurikubank.jpeg",
   "./images/HOKUTETSUBUS_frontof_hoteltorifito.jpeg",
   "./images/hashibacho-202503.png",
-  // 追加：橋場町（平日）データをオフラインキャッシュ
   "./data/bus-hashibamachi-weekday.json",
   "./data/bus-hashibamachi-weekend-holidays.json",
   

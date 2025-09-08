@@ -25,9 +25,10 @@ updateNet();
 // 左サイド：クイックリンク（編集可）
 // ==========================
 const defaultLinks = [
-  { label: "地図（デモ）",    view: "map"  },
-  { label: "よくある質問",    view: "faq"  },
-  { label: "メモ",            view: "notes"},
+  { label: "地図（デモ）",         view: "map"   },
+  { label: "よくある質問",         view: "faq"   },
+  { label: "メモ",                 view: "notes" },
+  { label: "白川郷バス空席",       view: "seats" }, // ★ 追加
 ];
 
 function renderLinks() {
@@ -52,7 +53,6 @@ function renderLinks() {
 // 左サイド：交通（固定 / ハッシュ遷移）
 // ==========================
 // ※ URLは分かれず #/bus/... のハッシュのみ変更（＝PWAは1ページのまま）
-// 交通リンク（グループ化）
 const transportation = {
   hashiba: [
     { label: '橋場町行バス（平日）',  view: 'bus_hashiba_weekday'   },
@@ -60,11 +60,9 @@ const transportation = {
     { label: '橋場町行時刻表',        view: 'bus_hashiba_timetable' },
   ],
   library: [
-    // ここに 県立図書館 行きのリンクを今後追加
-    // 例）{ label: '県立図書館行（平日）', view: 'bus_library_weekday' }
+    // 今後追加予定
   ]
 };
-
 
 function renderTransport(){
   // 橋場町行
@@ -138,6 +136,40 @@ document.addEventListener("click", (e) => {
 });
 
 // ==========================
+// 外部API：白川郷バス空席 取得
+// ==========================
+// 注意：本番ではAPIキーは環境変数やSecretsに保管し、直書きしないこと！
+async function loadSeats() {
+  const API_URL = "https://shirakawa-takaoka-api.onrender.com/seats";
+  const API_KEY = "あなたのAPI_SECRET"; // 暫定：公開リポ直書きはNGだがまずは確認用
+  const today = new Date().toISOString().slice(0,10);
+
+  const url = `${API_URL}?from=kanazawa&to=shirakawago&todate=${today}`;
+  const el = document.getElementById("bus-seat-status");
+  if (el) el.textContent = "⏳ 取得中…";
+
+  try {
+    const res = await fetch(url, { headers: { "x-api-key": API_KEY }});
+    if (!res.ok) throw new Error(`API error ${res.status}`);
+    const data = await res.json();
+
+    // UIに反映（仮）
+    const statusEl = document.getElementById("bus-seat-status");
+    const s = data.summary?.status;
+    if (!statusEl) return;
+
+    if (s === "available") statusEl.textContent = "🟢 空席あり";
+    else if (s === "limited") statusEl.textContent = `🟠 残り${data.summary?.remaining ?? "少"}`;
+    else if (s === "full") statusEl.textContent = "🔴 満席";
+    else statusEl.textContent = "⚪ 不明";
+  } catch (err) {
+    console.error(err);
+    const statusEl = document.getElementById("bus-seat-status");
+    if (statusEl) statusEl.textContent = "⚪ 取得失敗";
+  }
+}
+
+// ==========================
 // ビュー：画面コンポーネント
 // ==========================
 const views = {
@@ -160,6 +192,46 @@ const views = {
     t.addEventListener("input", () => store.set("notes", t.value));
     w.appendChild(t);
     return w;
+  },
+
+  // ★ 新規：白川郷バス空席ビュー
+  seats() {
+    const wrap = document.createElement("div");
+
+    // タイトルカード
+    const c = card("白川郷バス空席（本日）", "金沢 → 白川郷 の空席状況を取得します。");
+    const row = document.createElement("div");
+    row.style.display = "flex";
+    row.style.alignItems = "center";
+    row.style.gap = "0.5rem";
+
+    const status = document.createElement("span");
+    status.id = "bus-seat-status";
+    status.textContent = "—";
+    status.style.fontWeight = "bold";
+
+    const btn = document.createElement("button");
+    btn.className = "btn";
+    btn.textContent = "再取得";
+    btn.addEventListener("click", () => loadSeats());
+
+    row.append(status, btn);
+    c.appendChild(row);
+
+    // 注意書き
+    const note = document.createElement("p");
+    note.style.fontSize = "0.9em";
+    note.style.opacity = "0.8";
+    note.textContent = "※ デモ実装。APIキーは本番で直書きせず、環境変数/Secretsを使用してください。";
+    c.appendChild(note);
+
+    wrap.appendChild(c);
+
+    // 初回ロード
+    // （ビューが描画され、#bus-seat-status がDOMにある状態で呼ぶ）
+    loadSeats();
+
+    return wrap;
   },
 
   // 橋場町（平日）
@@ -415,6 +487,7 @@ const titleMap = {
   map: "地図（デモ）",
   faq: "よくある質問",
   notes: "メモ",
+  seats: "白川郷バス空席", // ★ 追加
   bus_hashiba_weekday: "橋場町行バス（平日）",
   bus_hashiba_holiday: "橋場町行バス（土日祝）",
   bus_hashiba_timetable: "橋場町行 時刻表"
@@ -443,10 +516,11 @@ addEventListener("keydown", (e) => {
 // ハッシュルーター（URLは1つのまま）
 // ==========================
 const routes = {
-  '#/home':       'home',
-  '#/bus/weekday':'bus_hashiba_weekday',
-  '#/bus/holiday':'bus_hashiba_holiday',
+  '#/home':         'home',
+  '#/bus/weekday':  'bus_hashiba_weekday',
+  '#/bus/holiday':  'bus_hashiba_holiday',
   '#/bus/timetable':'bus_hashiba_timetable',
+  '#/seats':        'seats', // ★ 追加：直接アクセスできるように
 };
 
 function openRoute() {
