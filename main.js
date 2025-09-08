@@ -138,36 +138,45 @@ document.addEventListener("click", (e) => {
 // ==========================
 // 外部API：白川郷バス空席 取得
 // ==========================
-// 注意：本番ではAPIキーは環境変数やSecretsに保管し、直書きしないこと！
 async function loadSeats() {
   const API_URL = "https://shirakawa-takaoka-api.onrender.com/seats";
-  const API_KEY = "sk_live_123456"; // 暫定：公開リポ直書きはNGだがまずは確認用
-  const today = new Date().toISOString().slice(0,10);
 
+  // ここに Render と同じ値を ASCII だけで書く（全角なし／改行なし）
+  let API_KEY = "sk_live_123456";
+
+  // 万一の混入を除去（全角・改行などを削る）
+  API_KEY = API_KEY.normalize("NFKC").replace(/[^\x20-\x7E]/g, "").trim();
+
+  // 非ASCII混入のセルフチェック（必要ならアラート）
+  if (!API_KEY || /[^\x20-\x7E]/.test(API_KEY)) {
+    console.error("API_KEY に非ASCII文字が含まれています");
+    alert("API_KEY に全角や改行が混ざっています。打ち直してください。");
+    return;
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
   const url = `${API_URL}?from=kanazawa&to=shirakawago&todate=${today}`;
-  const el = document.getElementById("bus-seat-status");
-  if (el) el.textContent = "⏳ 取得中…";
+
+  const headers = new Headers();
+  headers.set("x-api-key", API_KEY); // ← ヘッダ名も必ず半角
 
   try {
-    const res = await fetch(url, { headers: { "x-api-key": API_KEY }});
-    if (!res.ok) throw new Error(`API error ${res.status}`);
+    const res = await fetch(url, { headers });
+    if (!res.ok) throw new Error(`API ${res.status}`);
     const data = await res.json();
 
-    // UIに反映（仮）
-    const statusEl = document.getElementById("bus-seat-status");
-    const s = data.summary?.status;
-    if (!statusEl) return;
-
-    if (s === "available") statusEl.textContent = "🟢 空席あり";
-    else if (s === "limited") statusEl.textContent = `🟠 残り${data.summary?.remaining ?? "少"}`;
-    else if (s === "full") statusEl.textContent = "🔴 満席";
-    else statusEl.textContent = "⚪ 不明";
-  } catch (err) {
-    console.error(err);
-    const statusEl = document.getElementById("bus-seat-status");
-    if (statusEl) statusEl.textContent = "⚪ 取得失敗";
+    const el = document.getElementById("bus-seat-status");
+    const s = data.summary.status;
+    el.textContent =
+      s === "available" ? "🟢 空席あり" :
+      s === "limited"   ? `🟠 残り${data.summary.remaining ?? "少"}` :
+      s === "full"      ? "🔴 満席" : "⚪ 不明";
+  } catch (e) {
+    console.error(e);
+    document.getElementById("bus-seat-status").textContent = "⚪ 取得失敗";
   }
 }
+
 
 // ==========================
 // ビュー：画面コンポーネント
