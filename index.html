@@ -1,257 +1,139 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>観光案内サポート</title>
+  <title>観光案内ダッシュボード</title>
+
+  <!-- PWA用（任意）：用意していれば有効化 -->
+  <!-- <link rel="manifest" href="./manifest.webmanifest"> -->
+  <!-- <meta name="theme-color" content="#111827"> -->
+
   <style>
-    body{margin:0;font-family:sans-serif;background:#0b1220;color:#e5e7eb}
-    header{background:#111827;padding:.5rem 1rem;position:sticky;top:0}
-    .wrap{display:grid;grid-template-columns:250px 1fr;gap:1rem;padding:1rem}
-    aside,main{background:#111827;padding:1rem;border-radius:.5rem}
-    ul{list-style:none;padding:0;margin:0}
-    .link{display:block;padding:.4rem .6rem;color:#e5e7eb;text-decoration:none;border-radius:.3rem}
-    .link:hover{background:#1f2937}
-    .card{background:#1f2937;padding:1rem;border-radius:.5rem;margin:.5rem 0}
-    .btn{padding:.4rem .8rem;margin-top:.5rem}
-    #lightbox{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center}
-    #lightbox img{max-width:90%;border-radius:.5rem}
-    #lbClose{position:absolute;top:1rem;right:1rem}
-    .ok{color:#34d399}.warn{color:#f59e0b}
-    @media(max-width:800px){.wrap{grid-template-columns:1fr}}
+    :root { --bg:#0b1220; --panel:#111827; --muted:#9ca3af; --text:#e5e7eb; --accent:#2563eb; }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0; color: var(--text); background: var(--bg);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans JP", sans-serif;
+    }
+    a { color: inherit; text-decoration: none; }
+    .app {
+      display: grid; grid-template-columns: 280px 1fr; gap: 0;
+      min-height: 100dvh;
+    }
+    /* サイドバー */
+    aside {
+      background: #0f172a; border-right: 1px solid #1f2937; padding: 16px; position: sticky; top: 0; align-self: start; height: 100dvh; overflow: auto;
+    }
+    .brand { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    #netDot { font-size: 14px; }
+    .ok { color: #10b981; }    /* online */
+    .warn { color: #f59e0b; }  /* offline */
+    .search { display: flex; gap: 8px; margin: 12px 0 16px; }
+    .search input {
+      flex: 1; padding: 10px 12px; border-radius: 12px; border: 1px solid #1f2937; background: #0b1220; color: var(--text);
+    }
+    h3 { font-size: 14px; font-weight: 600; color: var(--muted); margin: 16px 0 8px; }
+    ul.nav { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+    .link {
+      display: block; padding: 10px 12px; border-radius: 10px; border: 1px solid #1f2937; background: #0b1220;
+    }
+    .link:hover { border-color: #334155; background: #0c162a; }
+
+    /* メイン */
+    main { padding: 20px; }
+    header.mainbar {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; margin-bottom: 16px;
+    }
+    #viewTitle { font-size: 20px; font-weight: 700; }
+    #installBtn {
+      padding: 8px 12px; border-radius: 10px; border: 1px solid #1f2937;
+      background: #0b1220; color: var(--text); cursor: pointer; display: inline-block;
+    }
+    #installBtn:hover { border-color: #334155; }
+
+    /* カード/ボタン（JSが使うクラス） */
+    .card {
+      background: var(--panel); border: 1px solid #1f2937; border-radius: 14px;
+      padding: 14px; margin: 12px 0;
+    }
+    .card h2 { margin: 0 0 8px; font-size: 18px; }
+    .card p { margin: 0; color: #cbd5e1; }
+    .btn {
+      margin-top: 10px; padding: 8px 12px; border-radius: 10px;
+      border: 1px solid #1f2937; background: #0b1220; color: var(--text); cursor: pointer;
+    }
+    .btn:hover { border-color: #334155; }
+
+    /* ライトボックス */
+    #lightbox {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+      display: none; align-items: center; justify-content: center; padding: 24px; z-index: 9999;
+    }
+    .lb-inner {
+      max-width: min(1000px, 92vw); width: 100%;
+      background: var(--panel); border: 1px solid #1f2937; border-radius: 14px; padding: 12px;
+    }
+    .lb-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 8px; }
+    #lbCap { font-size: 14px; color: #cbd5e1; }
+    #lbClose { cursor: pointer; border: 1px solid #1f2937; padding: 6px 10px; border-radius: 10px; }
+    #lbImg { width: 100%; height: auto; display: block; border-radius: 10px; border: 1px solid #1f2937; }
+
+    /* レスポンシブ */
+    @media (max-width: 960px) {
+      .app { grid-template-columns: 1fr; }
+      aside { position: static; height: auto; }
+    }
   </style>
 </head>
 <body>
-  <header>
-    <span id="netDot" class="warn">●</span>
-    <span id="viewTitle">ホーム</span>
-    <input id="q" type="search" placeholder="検索(/ または Q)" />
-    <button id="installBtn" hidden>ホームに追加</button>
-  </header>
-
-  <div class="wrap">
+  <div class="app">
+    <!-- ========== サイドバー ========== -->
     <aside>
+      <div class="brand">
+        <strong>案内ダッシュボード</strong>
+        <span id="netDot" class="warn">●</span>
+      </div>
+
+      <div class="search">
+        <input id="q" type="search" placeholder="検索（/ または q でフォーカス）" />
+      </div>
+
       <h3>クイックリンク</h3>
-      <ul id="quickLinks"></ul>
+      <ul id="quickLinks" class="nav"><!-- JSで挿入 --></ul>
+
       <h3>交通：橋場町方面</h3>
-      <ul id="transportLinks__hashiba"></ul>
+      <ul id="transportLinks__hashiba" class="nav"><!-- JSで挿入 --></ul>
+
       <h3>交通：県立図書館</h3>
-      <ul id="transportLinks__library"></ul>
+      <ul id="transportLinks__library" class="nav"><!-- JSで挿入 --></ul>
     </aside>
-    <main id="view"></main>
+
+    <!-- ========== メイン ========== -->
+    <main>
+      <header class="mainbar">
+        <div id="viewTitle">ホーム</div>
+        <button id="installBtn" hidden>ホームに追加</button>
+      </header>
+
+      <section id="view"><!-- JSでビューを描画 --></section>
+    </main>
   </div>
 
-  <!-- ライトボックス -->
-  <div id="lightbox">
-    <button id="lbClose">×</button>
-    <div>
-      <img id="lbImg" src="" alt="">
-      <div id="lbCap"></div>
+  <!-- ========== ライトボックス ========== -->
+  <div id="lightbox" aria-hidden="true">
+    <div class="lb-inner">
+      <div class="lb-top">
+        <div id="lbCap"></div>
+        <button id="lbClose" type="button">閉じる</button>
+      </div>
+      <img id="lbImg" alt="拡大画像" />
     </div>
   </div>
 
-  <script>
-    // ==== ここからあなたのJS ====
-    // （省略せずそのまま貼ってある）
-    // ==========================
-// ストレージ / ユーティリティ
-// ==========================
-const store = {
-  get(k, f) {
-    try { return JSON.parse(localStorage.getItem(k)) ?? f } catch { return f }
-  },
-  set(k, v) { localStorage.setItem(k, JSON.stringify(v)) },
-};
-
-const $ = (s, r = document) => r.querySelector(s);
-
-// 通信状態
-function updateNet() {
-  const d = $("#netDot");
-  if (!d) return;
-  d.textContent = "●";
-  d.className = navigator.onLine ? "ok" : "warn";
-}
-addEventListener("online", updateNet);
-addEventListener("offline", updateNet);
-updateNet();
-
-// ==========================
-// 左サイド：クイックリンク（編集可）
-// ==========================
-const defaultLinks = [
-  { label: "地図（デモ）",         view: "map"   },
-  { label: "よくある質問",         view: "faq"   },
-  { label: "メモ",                 view: "notes" },
-];
-
-function renderLinks() {
-  const links = store.get("links", defaultLinks);
-  const ul = $("#quickLinks");
-  if (!ul) return;
-  ul.innerHTML = "";
-  for (const { label, view } of links) {
-    const li = document.createElement("li");
-    const a  = document.createElement("a");
-    a.className = "link";
-    a.href = "#";
-    a.dataset.open = view;
-    a.textContent = label;
-    li.appendChild(a);
-    ul.appendChild(li);
-  }
-}
-
-// ==========================
-// 左サイド：交通（固定 / ハッシュ遷移）
-// ==========================
-const transportation = {
-  hashiba: [
-    { label: '橋場町行バス（平日）',  view: 'bus_hashiba_weekday'   },
-    { label: '橋場町行バス（土日祝）', view: 'bus_hashiba_holiday'   },
-    { label: '橋場町行時刻表',        view: 'bus_hashiba_timetable' },
-  ],
-  library: []
-};
-
-function renderTransport(){
-  const ulHashiba = document.getElementById('transportLinks__hashiba');
-  if (ulHashiba){
-    ulHashiba.innerHTML = '';
-    for (const { label, view } of transportation.hashiba){
-      const li = document.createElement('li');
-      const a  = document.createElement('a');
-      a.className = 'link';
-      a.href = '#';
-      a.dataset.open = view;
-      a.textContent = label;
-      li.appendChild(a);
-      ulHashiba.appendChild(li);
-    }
-  }
-  const ulLib = document.getElementById('transportLinks__library');
-  if (ulLib){
-    ulLib.innerHTML = '';
-    for (const { label, view } of transportation.library){
-      const li = document.createElement('li');
-      const a  = document.createElement('a');
-      a.className = 'link';
-      a.href = '#';
-      a.dataset.open = view;
-      a.textContent = label;
-      li.appendChild(a);
-      ulLib.appendChild(li);
-    }
-  }
-}
-renderLinks();
-renderTransport();
-
-// ==========================
-// 画像ライトボックス
-// ==========================
-function showImage(src, caption=''){
-  const box = document.getElementById('lightbox');
-  const img = document.getElementById('lbImg');
-  const cap = document.getElementById('lbCap');
-  img.src = src;
-  cap.textContent = caption;
-  box.style.display = 'flex';
-}
-function hideImage(){
-  const box = document.getElementById('lightbox');
-  const img = document.getElementById('lbImg');
-  box.style.display = 'none';
-  img.src = '';
-}
-document.getElementById('lbClose').addEventListener('click', hideImage);
-document.getElementById('lightbox').addEventListener('click', (e)=>{
-  if(e.target.id === 'lightbox') hideImage();
-});
-
-// ==========================
-// クリックイベント
-// ==========================
-document.addEventListener("click", (e) => {
-  const a = e.target.closest("a[data-open]");
-  if (!a) return;
-  e.preventDefault();
-  openView(a.dataset.open);
-});
-
-// ==========================
-// ビュー
-// ==========================
-const views = {
-  home() { return card("ようこそ", "ここに機能カードを追加していきます。"); },
-  map() { return card("地図（デモ）", "地図SDKなどをここに表示"); },
-  faq() { return card("よくある質問", "定型文を後で追加予定"); },
-  notes() {
-    const w = document.createElement("div");
-    const t = document.createElement("textarea");
-    t.style.width = "100%";
-    t.style.height = "40vh";
-    t.placeholder = "ここにメモ（端末内に保存）";
-    t.value = store.get("notes", "");
-    t.addEventListener("input", () => store.set("notes", t.value));
-    w.appendChild(t);
-    return w;
-  }
-};
-
-// ==========================
-// 画面描画
-// ==========================
-function card(title, body) {
-  const d = document.createElement("div");
-  d.className = "card";
-  const h = document.createElement("h2"); h.textContent = title;
-  const p = document.createElement("p"); p.textContent = body;
-  d.append(h,p);
-  return d;
-}
-const titleMap = { home:"ホーム",map:"地図（デモ）",faq:"よくある質問",notes:"メモ" };
-
-function openView(name) {
-  const v = $("#view"); const t=$("#viewTitle");
-  if (!v||!t) return;
-  t.textContent = titleMap[name] ?? name;
-  v.innerHTML = "";
-  const fn = views[name] || views.home;
-  v.appendChild(fn());
-}
-
-// ==========================
-// ルーティング
-// ==========================
-const routes = { '#/home':'home','#/map':'map','#/faq':'faq','#/notes':'notes' };
-function openRoute() {
-  const h = location.hash || '#/home';
-  const viewName = routes[h] || 'home';
-  openView(viewName);
-}
-window.addEventListener('hashchange', openRoute);
-if (!location.hash) location.hash = '#/home';
-openRoute();
-
-// ==========================
-// インストールプロンプト
-// ==========================
-let deferredPrompt;
-addEventListener("beforeinstallprompt", (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  const b = document.getElementById("installBtn");
-  if (!b) return;
-  b.hidden = false;
-  b.addEventListener("click", async () => {
-    b.hidden = true;
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    await deferredPrompt.userChoice;
-    deferredPrompt = null;
-  });
-});
-  </script>
+  <!-- あなたが用意したJS（このファイル名に合わせて変更OK） -->
+  <script src="./main.js"></script>
 </body>
 </html>
