@@ -28,7 +28,7 @@ const defaultLinks = [
   { label: "地図（デモ）",         view: "map"   },
   { label: "よくある質問",         view: "faq"   },
   { label: "メモ",                 view: "notes" },
-  { label: "白川郷バス空席",       view: "seats" }, // ★ 追加
+  // ※ 白川郷/高岡の残席表示リンクは削除
 ];
 
 function renderLinks() {
@@ -136,49 +136,6 @@ document.addEventListener("click", (e) => {
 });
 
 // ==========================
-// 外部API：白川郷バス空席 取得
-// ==========================
-async function loadSeats() {
-  const API_URL = "https://shirakawa-takaoka-api.onrender.com/seats";
-
-  // ここに Render と同じ値を ASCII だけで書く（全角なし／改行なし）
-  let API_KEY = "sk_live_123456";
-
-  // 万一の混入を除去（全角・改行などを削る）
-  API_KEY = API_KEY.normalize("NFKC").replace(/[^\x20-\x7E]/g, "").trim();
-
-  // 非ASCII混入のセルフチェック（必要ならアラート）
-  if (!API_KEY || /[^\x20-\x7E]/.test(API_KEY)) {
-    console.error("API_KEY に非ASCII文字が含まれています");
-    alert("API_KEY に全角や改行が混ざっています。打ち直してください。");
-    return;
-  }
-
-  const today = new Date().toISOString().slice(0, 10);
-  const url = `${API_URL}?from=kanazawa&to=shirakawago&todate=${today}`;
-
-  const headers = new Headers();
-  headers.set("x-api-key", API_KEY); // ← ヘッダ名も必ず半角
-
-  try {
-    const res = await fetch(url, { headers });
-    if (!res.ok) throw new Error(`API ${res.status}`);
-    const data = await res.json();
-
-    const el = document.getElementById("bus-seat-status");
-    const s = data.summary.status;
-    el.textContent =
-      s === "available" ? "🟢 空席あり" :
-      s === "limited"   ? `🟠 残り${data.summary.remaining ?? "少"}` :
-      s === "full"      ? "🔴 満席" : "⚪ 不明";
-  } catch (e) {
-    console.error(e);
-    document.getElementById("bus-seat-status").textContent = "⚪ 取得失敗";
-  }
-}
-
-
-// ==========================
 // ビュー：画面コンポーネント
 // ==========================
 const views = {
@@ -201,46 +158,6 @@ const views = {
     t.addEventListener("input", () => store.set("notes", t.value));
     w.appendChild(t);
     return w;
-  },
-
-  // ★ 新規：白川郷バス空席ビュー
-  seats() {
-    const wrap = document.createElement("div");
-
-    // タイトルカード
-    const c = card("白川郷バス空席（本日）", "金沢 → 白川郷 の空席状況を取得します。");
-    const row = document.createElement("div");
-    row.style.display = "flex";
-    row.style.alignItems = "center";
-    row.style.gap = "0.5rem";
-
-    const status = document.createElement("span");
-    status.id = "bus-seat-status";
-    status.textContent = "—";
-    status.style.fontWeight = "bold";
-
-    const btn = document.createElement("button");
-    btn.className = "btn";
-    btn.textContent = "再取得";
-    btn.addEventListener("click", () => loadSeats());
-
-    row.append(status, btn);
-    c.appendChild(row);
-
-    // 注意書き
-    const note = document.createElement("p");
-    note.style.fontSize = "0.9em";
-    note.style.opacity = "0.8";
-    note.textContent = "※ デモ実装。APIキーは本番で直書きせず、環境変数/Secretsを使用してください。";
-    c.appendChild(note);
-
-    wrap.appendChild(c);
-
-    // 初回ロード
-    // （ビューが描画され、#bus-seat-status がDOMにある状態で呼ぶ）
-    loadSeats();
-
-    return wrap;
   },
 
   // 橋場町（平日）
@@ -496,7 +413,7 @@ const titleMap = {
   map: "地図（デモ）",
   faq: "よくある質問",
   notes: "メモ",
-  seats: "白川郷バス空席", // ★ 追加
+  // seats: "白川郷バス空席", // ← 削除
   bus_hashiba_weekday: "橋場町行バス（平日）",
   bus_hashiba_holiday: "橋場町行バス（土日祝）",
   bus_hashiba_timetable: "橋場町行 時刻表"
@@ -529,7 +446,7 @@ const routes = {
   '#/bus/weekday':  'bus_hashiba_weekday',
   '#/bus/holiday':  'bus_hashiba_holiday',
   '#/bus/timetable':'bus_hashiba_timetable',
-  '#/seats':        'seats', // ★ 追加：直接アクセスできるように
+  // '#/seats':        'seats', // ← 削除
 };
 
 function openRoute() {

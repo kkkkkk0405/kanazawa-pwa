@@ -18,13 +18,8 @@
         --text: #e5e7eb;
         --muted: #9ca3af;
       }
-      * {
-        box-sizing: border-box;
-      }
-      html,
-      body {
-        height: 100%;
-      }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
       body {
         margin: 0;
         font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
@@ -32,76 +27,50 @@
         color: var(--text);
       }
       header {
-        position: sticky;
-        top: 0;
-        display: flex;
-        gap: 0.75rem;
-        align-items: center;
-        padding: 1rem;
-        border-bottom: 1px solid #1f2937;
+        position: sticky; top: 0;
+        display: flex; gap: 0.75rem; align-items: center;
+        padding: 1rem; border-bottom: 1px solid #1f2937;
         background: rgba(15, 23, 42, 0.85);
       }
       header input {
-        flex: 1;
-        padding: 0.75rem 1rem;
-        border-radius: 0.75rem;
-        border: 1px solid #1f2937;
-        background: #0b1220;
-        color: var(--text);
+        flex: 1; padding: 0.75rem 1rem; border-radius: 0.75rem;
+        border: 1px solid #1f2937; background: #0b1220; color: var(--text);
       }
       main {
-        display: grid; 
-        grid-template-columns: 280px 1fr; 
-        gap: 1rem; 
-        padding: 1rem;
+        display: grid; grid-template-columns: 280px 1fr;
+        gap: 1rem; padding: 1rem;
       }
-      .sidebar { 
-        display: flex; 
-        flex-direction: column; 
-        gap: 1rem;
-      }
+      .sidebar { display: flex; flex-direction: column; gap: 1rem; }
       .card {
-        background: #111827;
-        border: 1px solid #1f2937;
-        border-radius: 1rem;
-        padding: 1rem;
+        background: #111827; border: 1px solid #1f2937;
+        border-radius: 1rem; padding: 1rem;
       }
       .link {
-        display: block;
-        padding: 0.6rem 0.75rem;
-        border-radius: 0.6rem;
-        background: #0b1220;
-        border: 1px solid #1f2937;
-        color: #e5e7eb;
-        text-decoration: none;
+        display: block; padding: 0.6rem 0.75rem; border-radius: 0.6rem;
+        background: #0b1220; border: 1px solid #1f2937;
+        color: #e5e7eb; text-decoration: none;
       }
       .pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        background: #0b1220;
-        border: 1px solid #1f2937;
-        padding: 0.2rem 0.6rem;
-        border-radius: 999px;
-        font-size: 0.85rem;
-        color: #cbd5e1;
+        display: inline-flex; align-items: center; gap: 0.4rem;
+        background: #0b1220; border: 1px solid #1f2937;
+        padding: 0.2rem 0.6rem; border-radius: 999px;
+        font-size: 0.85rem; color: #cbd5e1;
       }
-      .ok {
-        color: #10b981;
-      }
-      .warn {
-        color: #f59e0b;
-      }
-      /* 小見出しとグループ用 */
-      .subhead {
-        margin:.25rem 0 .5rem; 
-        font-size:1rem; 
-        color:#cbd5e1 
-      }
-      .tgroup  {
-         margin-top:1rem 
-      }
+      .ok { color: #10b981; }
+      .warn { color: #f59e0b; }
 
+      /* 追加（ライトボックスのキャプションや各ボタン用） */
+      .muted { color: var(--muted); }
+      .btn {
+        padding: .5rem .75rem; border-radius: .6rem;
+        background:#0b1220; border:1px solid #1f2937; color:#e5e7eb;
+        cursor:pointer;
+      }
+      .btn:hover { opacity:.9; }
+
+      /* 小見出しとグループ用 */
+      .subhead { margin:.25rem 0 .5rem; font-size:1rem; color:#cbd5e1 }
+      .tgroup  { margin-top:1rem }
     </style>
   </head>
 
@@ -118,60 +87,74 @@
     </header>
 
     <main>
-  <!-- 左カラム：サイドバー -->
-  <div class="sidebar">
-    <aside class="card">
-      <h2>クイックリンク（編集可）</h2>
-      <ul id="quickLinks"></ul>
-      <div style="margin-top: 1rem; display: flex; gap: 0.5rem">
-        <button id="editLinks">リンク編集</button>
-        <button id="resetLinks">初期化</button>
+      <!-- 左カラム：サイドバー -->
+      <div class="sidebar">
+        <aside class="card">
+          <h2>クイックリンク（編集可）</h2>
+          <ul id="quickLinks"></ul>
+          <div style="margin-top: 1rem; display: flex; gap: 0.5rem">
+            <button id="editLinks" class="btn">リンク編集</button>
+            <button id="resetLinks" class="btn">初期化</button>
+          </div>
+          <p style="color: #9ca3af; margin-top: 0.75rem">
+            リンクや設定はオフラインでも保存されます（この端末のみ）。
+          </p>
+        </aside>
+
+        <aside class="card">
+          <h2>交通</h2>
+
+          <!-- 橋場町行 グループ -->
+          <div class="tgroup">
+            <h3 class="subhead">橋場町行</h3>
+            <ul id="transportLinks__hashiba"></ul>
+          </div>
+
+          <!-- 県立図書館行き（将来用、いまは空） -->
+          <div class="tgroup">
+            <h3 class="subhead">県立図書館行き</h3>
+            <ul id="transportLinks__library"></ul>
+          </div>
+        </aside>
       </div>
-      <p style="color: #9ca3af; margin-top: 0.75rem">
-        リンクや設定はオフラインでも保存されます（この端末のみ）。
-      </p>
-    </aside>
 
-    <aside class="card">
-  <h2>交通</h2>
-
-  <!-- 橋場町行 グループ -->
-  <div class="tgroup">
-    <h3 class="subhead">橋場町行</h3>
-    <ul id="transportLinks__hashiba"></ul>
-  </div>
-<div id="bus-seat-status">座席状況を取得中...</div>
-
-  <!-- 県立図書館行き（将来用、いまは空） -->
-  <div class="tgroup">
-    <h3 class="subhead">県立図書館行き</h3>
-    <ul id="transportLinks__library"></ul>
-  </div>
-</aside>
-
-  </div>
-
-  <!-- 右カラム：ビュー -->
-  <section class="card">
-    <h2 id="viewTitle">ホーム</h2>
-    <div id="view" class="grid"></div>
-  </section>
-</main>
-
-
+      <!-- 右カラム：ビュー -->
+      <section class="card">
+        <h2 id="viewTitle">ホーム</h2>
+        <div id="view" class="grid"></div>
+      </section>
+    </main>
 
     <!-- 画像ライトボックス -->
-        <div id="lightbox" style="
-        position:fixed; inset:0; background:rgba(0,0,0,.7);
-        display:none; align-items:center; justify-content:center; z-index:9999;">
-        <div style="max-width:90vw; max-height:90vh; position:relative; background:#111827; border:1px solid #1f2937; border-radius:1rem; padding:.5rem">
+    <div id="lightbox" style="
+      position:fixed; inset:0; background:rgba(0,0,0,.7);
+      display:none; align-items:center; justify-content:center; z-index:9999;">
+      <div style="max-width:90vw; max-height:90vh; position:relative; background:#111827; border:1px solid #1f2937; border-radius:1rem; padding:.5rem">
         <button id="lbClose" class="btn" style="position:absolute; right:.5rem; top:.5rem">閉じる</button>
         <img id="lbImg" src="" alt="乗り場写真" style="max-width:86vw; max-height:80vh; display:block; border-radius:.5rem"/>
         <div id="lbCap" class="muted" style="margin-top:.25rem"></div>
-    </div>
+      </div>
     </div>
 
-    <script src="./main.js" defer></script>
+    <!-- 旧バージョンで保存された「seats」リンクを掃除（ある場合のみ） -->
+    <script>
+      try {
+        const raw = localStorage.getItem('links');
+        if (raw) {
+          const arr = JSON.parse(raw);
+          if (Array.isArray(arr)) {
+            const filtered = arr.filter(x => x && x.view !== 'seats');
+            if (filtered.length !== arr.length) {
+              localStorage.setItem('links', JSON.stringify(filtered));
+            }
+          }
+        }
+      } catch {}
+    </script>
+
+    <!-- 削除版のJS（app.js）を読み込み -->
+    <script src="./app.js" defer></script>
+
     <script>
       if ("serviceWorker" in navigator) {
         addEventListener("load", () => navigator.serviceWorker.register("./sw.js"));
