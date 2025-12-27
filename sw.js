@@ -1,5 +1,5 @@
 // sw.js
-const CACHE_NAME = "tourist-app-v1.23";
+const CACHE_NAME = "tourist-app-v2.0.1";
 
 const APP_SHELL = [
   "./",
@@ -54,3 +54,4 @@ self.addEventListener("fetch", (event) => {
       .catch(() => caches.match("./index.html"))
   );
 });
+
