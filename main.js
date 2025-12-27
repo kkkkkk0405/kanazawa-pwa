@@ -1,4 +1,12 @@
 // ==========================
+// 設定・バージョン情報
+// ==========================
+const APP_CONFIG = {
+  version: "ver 1.1",
+  lastUpdated: "2025/12/28", // ← 更新時はここ書き換える
+};
+
+// ==========================
 // ストレージ / ユーティリティ
 // ==========================
 const store = {
@@ -27,11 +35,11 @@ updateNet();
 const defaultLinks = [
   { label: "地図（デモ）",         view: "map"   },
   { label: "よくある質問",         view: "faq"   },
-  { label: "メモ",                 view: "notes" },
-  // ※ 白川郷/高岡の残席表示リンクは削除
+  // ※ メモ機能は削除しました
 ];
 
 function renderLinks() {
+  // ※メモ削除に伴いstoreキーが変わるわけではないですが、初期値からメモが消えます
   const links = store.get("links", defaultLinks);
   const ul = $("#quickLinks");
   if (!ul) return;
@@ -41,7 +49,7 @@ function renderLinks() {
     const li = document.createElement("li");
     const a  = document.createElement("a");
     a.className = "link";
-    a.href = "#";                // ← クイックリンクは従来通りSPA内切替
+    a.href = "#";
     a.dataset.open = view;
     a.textContent = label;
     li.appendChild(a);
@@ -52,7 +60,6 @@ function renderLinks() {
 // ==========================
 // 左サイド：交通（固定 / ハッシュ遷移）
 // ==========================
-// ※ URLは分かれず #/bus/... のハッシュのみ変更（＝PWAは1ページのまま）
 const transportation = {
   hashiba: [
     { label: '橋場町行バス（平日）',  view: 'bus_hashiba_weekday'   },
@@ -81,7 +88,7 @@ function renderTransport(){
     }
   }
 
-  // 県立図書館行き（まだ空でもOK）
+  // 県立図書館行き
   const ulLib = document.getElementById('transportLinks__library');
   if (ulLib){
     ulLib.innerHTML = '';
@@ -119,15 +126,18 @@ function hideImage(){
   box.style.display = 'none';
   img.src = '';
 }
-document.getElementById('lbClose').addEventListener('click', hideImage);
-document.getElementById('lightbox').addEventListener('click', (e)=>{
-  if(e.target.id === 'lightbox') hideImage(); // 背景クリックで閉じる
-});
+if(document.getElementById('lbClose')) {
+  document.getElementById('lbClose').addEventListener('click', hideImage);
+}
+if(document.getElementById('lightbox')) {
+  document.getElementById('lightbox').addEventListener('click', (e)=>{
+    if(e.target.id === 'lightbox') hideImage();
+  });
+}
 
 // ==========================
-// クリック（従来の data-open だけ拾う）
+// クリックハンドラ
 // ==========================
-// ※ 交通リンクは data-open を付けてないので、このハンドラは素通り→ハッシュ変更→ルーターで描画
 document.addEventListener("click", (e) => {
   const a = e.target.closest("a[data-open]");
   if (!a) return;
@@ -140,7 +150,26 @@ document.addEventListener("click", (e) => {
 // ==========================
 const views = {
   home() {
-    return card("ようこそ", "ここに機能カードを追加していきます。");
+    const wrap = document.createElement("div");
+    
+    // ホーム画面のコンテンツ
+    wrap.appendChild(card("ようこそ", "左のメニューから業務ツールを選択してください。"));
+    
+    // バージョン情報の表示エリア
+    const info = document.createElement("div");
+    info.style.marginTop = "2rem";
+    info.style.padding = "1rem";
+    info.style.color = "#6b7280"; // グレー文字
+    info.style.fontSize = "0.85rem";
+    info.style.textAlign = "center";
+    info.style.borderTop = "1px solid #e5e7eb";
+    info.innerHTML = `
+      <p>App Version: <strong>${APP_CONFIG.version}</strong></p>
+      <p>Last Updated: ${APP_CONFIG.lastUpdated}</p>
+    `;
+    
+    wrap.appendChild(info);
+    return wrap;
   },
   map() {
     return card("地図（デモ）", "本番では地図SDKや静的マップ画像をキャッシュして表示。");
@@ -148,17 +177,7 @@ const views = {
   faq() {
     return card("よくある質問", "後で定型文を入れられるようにします。");
   },
-  notes() {
-    const w = document.createElement("div");
-    const t = document.createElement("textarea");
-    t.style.width = "100%";
-    t.style.height = "40vh";
-    t.placeholder = "ここにメモ（端末内に保存）";
-    t.value = store.get("notes", "");
-    t.addEventListener("input", () => store.set("notes", t.value));
-    w.appendChild(t);
-    return w;
-  },
+  // ※ notes() は削除しました
 
   // 橋場町（平日）
   bus_hashiba_weekday() {
@@ -204,6 +223,7 @@ const views = {
         }
       }
 
+      // 直近がない場合は翌日の便を検索
       if (candidates.length === 0) {
         for (const op of ops) {
           for (const item of op.weekday.slice(0, 3)) {
@@ -412,8 +432,7 @@ const titleMap = {
   home: "ホーム",
   map: "地図（デモ）",
   faq: "よくある質問",
-  notes: "メモ",
-  // seats: "白川郷バス空席", // ← 削除
+  // ※ notes は削除しました
   bus_hashiba_weekday: "橋場町行バス（平日）",
   bus_hashiba_holiday: "橋場町行バス（土日祝）",
   bus_hashiba_timetable: "橋場町行 時刻表"
@@ -439,14 +458,13 @@ addEventListener("keydown", (e) => {
 });
 
 // ==========================
-// ハッシュルーター（URLは1つのまま）
+// ハッシュルーター
 // ==========================
 const routes = {
-  '#/home':         'home',
-  '#/bus/weekday':  'bus_hashiba_weekday',
-  '#/bus/holiday':  'bus_hashiba_holiday',
-  '#/bus/timetable':'bus_hashiba_timetable',
-  // '#/seats':        'seats', // ← 削除
+  '#/home':           'home',
+  '#/bus/weekday':    'bus_hashiba_weekday',
+  '#/bus/holiday':    'bus_hashiba_holiday',
+  '#/bus/timetable':  'bus_hashiba_timetable',
 };
 
 function openRoute() {
@@ -457,12 +475,11 @@ function openRoute() {
 
 window.addEventListener('hashchange', openRoute);
 
-// 初期表示：ハッシュ優先。なければホームへ。
 if (!location.hash) location.hash = '#/home';
 openRoute();
 
 // ==========================
-// A2HS（ホーム追加）UI
+// A2HS
 // ==========================
 let deferredPrompt;
 addEventListener("beforeinstallprompt", (e) => {
