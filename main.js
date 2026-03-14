@@ -3,7 +3,7 @@
 // ==========================
 const APP_CONFIG = {
   version: "ver 1.1",
-  lastUpdated: "2025/12/28", // ← 更新時はここ書き換える
+  lastUpdated: "2026/03/14", // ← 更新時はここ書き換える
 };
 
 // ==========================
@@ -278,7 +278,7 @@ const views = {
       });
     };
 
-    fetch('./data/bus-hashibamachi-weekday.json')
+    fetch('./data/bus-hashibamachi-weekday-20260314.json')
       .then(r => r.json())
       .then(data => {
         render(data);
@@ -386,7 +386,7 @@ const views = {
       });
     };
 
-    fetch('./data/bus-hashibamachi-weekend-holidays.json')
+    fetch('./data/bus-hashibamachi-weekend-holidays-20260314.json')
       .then(r => r.json())
       .then(data => {
         render(data);
