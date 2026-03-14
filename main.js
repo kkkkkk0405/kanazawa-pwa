@@ -402,7 +402,7 @@ const views = {
     wrap.appendChild(card("橋場町行 時刻表", "平日・土日祝のダイヤをまとめて表示しています。"));
 
     const img = document.createElement("img");
-    img.src = "./images/hashibacho-202503.png";
+    img.src = "./images/hashibacho-20263.pdf";
     img.alt = "橋場町行バス時刻表";
     img.style.maxWidth = "100%";
     img.style.height = "auto";
