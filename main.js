@@ -2,7 +2,7 @@
 // 設定・バージョン情報
 // ==========================
 const APP_CONFIG = {
-  version: "ver 1.1",
+  version: "ver 1.1.2",
   lastUpdated: "2026/03/14", // ← 更新時はここ書き換える
 };
 
