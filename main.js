@@ -31,6 +31,9 @@ window.titleMap = {
   bus_hashiba_weekday: "橋場町（平日）",
   bus_hashiba_holiday: "橋場町（土日祝）",
   bus_hashiba_timetable: "橋場町 時刻表"
+  bus_library_menu: "県立図書館方面",
+  bus_library_weekday: "図書館行（平日）",
+  bus_library_holiday: "図書館行（土日祝）"
 };
 
 const localViews = {
