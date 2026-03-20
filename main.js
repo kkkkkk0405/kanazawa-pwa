@@ -175,15 +175,6 @@ function card(title, body) {
   return d;
 }
 
-const titleMap = {
-  home: "ホーム",
-  map: "地図",
-  faq: "よくある質問",
-  bus_hashiba_weekday: "橋場町行バス（平日）",
-  bus_hashiba_holiday: "橋場町行バス（土日祝）",
-  bus_hashiba_timetable: "橋場町行 時刻表"
-};
-
 function openView(name) {
   const v = $("#view");
   const t = $("#viewTitle");
