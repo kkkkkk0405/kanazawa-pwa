@@ -2,7 +2,7 @@
 // 設定・バージョン情報
 // ==========================
 const APP_CONFIG = {
-  version: "ver 1.1.4",
+  version: "ver 1.1.5",
   lastUpdated: "2026/03/20", // ← 更新時はここ書き換える
 };
 
@@ -149,7 +149,7 @@ document.addEventListener("click", (e) => {
 // ビュー：画面コンポーネント
 // ==========================
 const views = {
-  home() {
+  () {
     const wrap = document.createElement("div");
     
     // ホーム画面のコンテンツ
@@ -253,7 +253,7 @@ let deferredPrompt;
 addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  const b = document.getElementById("installBtn");
+  const b home= document.getElementById("installBtn");
   if (!b) return;
   b.hidden = false;
   b.addEventListener("click", async () => {
