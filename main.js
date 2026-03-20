@@ -2,7 +2,7 @@
 // 設定・バージョン情報
 // ==========================
 const APP_CONFIG = {
-  version: "ver 1.1.7",
+  version: "ver 1.1.9",
   lastUpdated: "2026/03/20",
 };
 
@@ -18,7 +18,7 @@ const store = {
 
 const $ = (s, r = document) => r.querySelector(s);
 
-// 通信状態
+// 通信状態の更新
 function updateNet() {
   const d = $("#netDot");
   if (!d) return;
@@ -30,103 +30,73 @@ addEventListener("offline", updateNet);
 updateNet();
 
 // ==========================
-// 左サイド：クイックリンク
+// 左サイド：メニュー描画
 // ==========================
 const defaultLinks = [
-  { label: "地図（デモ）",         view: "map"   },
-  { label: "よくある質問",         view: "faq"   },
+  { label: "地図（デモ）", view: "map" },
+  { label: "よくある質問", view: "faq" },
 ];
 
+const transportation = {
+  main: [
+    { label: '🚌 交通案内（バス）', view: 'bus_top' }
+  ]
+};
+
+// クイックリンク描画
 function renderLinks() {
   const links = store.get("links", defaultLinks);
   const ul = $("#quickLinks");
   if (!ul) return;
   ul.innerHTML = "";
-  for (const { label, view } of links) {
+  links.forEach(({ label, view }) => {
     const li = document.createElement("li");
-    const a  = document.createElement("a");
-    a.className = "link";
-    a.href = "#";
-    a.dataset.open = view;
+    const a = document.createElement("a");
+    a.className = "link"; a.href = "#"; a.dataset.open = view;
     a.textContent = label;
     li.appendChild(a);
     ul.appendChild(li);
-  }
+  });
 }
 
-// ==========================
-// 左サイド：交通
-// ==========================
-// 左サイド：交通（「交通案内」1つに絞る）
-const transportation = {
-  main: [
-    { label: '🚌 交通案内（バス）',  view: 'bus_top' }
-  ]
-};
-
-function renderTransport(){
-  const ul = document.getElementById('transportLinks__hashiba'); // 既存のIDを再利用
-  if (ul){
-    ul.innerHTML = '';
-    transportation.main.forEach(({ label, view }) => {
-      const li = document.createElement('li');
-      const a = document.createElement('a');
-      a.className = 'link'; a.href = '#'; a.dataset.open = view;
-      a.textContent = label;
-      li.appendChild(a);
-      ul.appendChild(li);
-    });
-  }
+// 交通メニュー描画 (1つに集約)
+function renderTransport() {
+  const ul = document.getElementById('transportLinks__hashiba');
+  if (!ul) return;
+  ul.innerHTML = '';
+  transportation.main.forEach(({ label, view }) => {
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.className = 'link'; a.href = '#'; a.dataset.open = view;
+    a.textContent = label;
+    li.appendChild(a);
+    ul.appendChild(li);
+  });
 }
 
-// タイトルの対応表に「交通案内」を追加
-const titleMap = {
-  home: "ホーム",
-  map: "地図",
-  faq: "よくある質問",
-  bus_top: "交通案内", // ←追加
-  bus_hashiba_weekday: "橋場町行（平日）",
-  bus_hashiba_holiday: "橋場町行（土日祝）",
-  bus_hashiba_timetable: "橋場町行 時刻表"
-};
-
-function renderTransport(){
-  const ulHashiba = document.getElementById('transportLinks__hashiba');
-  if (ulHashiba){
-    ulHashiba.innerHTML = '';
-    for (const { label, view } of transportation.hashiba){
-      const li = document.createElement('li');
-      const a  = document.createElement('a');
-      a.className = "link";
-      a.href = "#";
-      a.dataset.open = view;
-      a.textContent = label;
-      li.appendChild(a);
-      ulHashiba.appendChild(li);
-    }
-  }
-}
-
-// 初期描画
+// 初期描画の実行
 renderLinks();
 renderTransport();
 
 // ==========================
 // 画像ライトボックス
 // ==========================
-function showImage(src, caption=''){
+function showImage(src, caption = '') {
   const box = document.getElementById('lightbox');
   const img = document.getElementById('lbImg');
   const cap = document.getElementById('lbCap');
+  if (!box || !img) return;
   img.src = src;
   cap.textContent = caption;
   box.style.display = 'flex';
 }
-function hideImage(){
+
+function hideImage() {
   const box = document.getElementById('lightbox');
-  box.style.display = 'none';
+  if (box) box.style.display = 'none';
 }
-if($("#lbClose")) $("#lbClose").addEventListener('click', hideImage);
+
+if ($("#lbClose")) $("#lbClose").addEventListener('click', hideImage);
 
 // ==========================
 // クリックハンドラ
@@ -141,8 +111,18 @@ document.addEventListener("click", (e) => {
 // ==========================
 // ビュー：画面コンポーネント
 // ==========================
+const titleMap = {
+  home: "ホーム",
+  map: "地図",
+  faq: "よくある質問",
+  bus_top: "交通案内",
+  bus_hashiba_weekday: "橋場町行（平日）",
+  bus_hashiba_holiday: "橋場町行（土日祝）",
+  bus_hashiba_timetable: "橋場町行 時刻表"
+};
+
 const views = {
-  home() { // ← ここを修正しました（homeを追加）
+  home() {
     const wrap = document.createElement("div");
     wrap.appendChild(card("ようこそ", "左のメニューから業務ツールを選択してください。"));
     const info = document.createElement("div");
@@ -158,6 +138,8 @@ const views = {
   },
   map() { return card("地図（デモ）", "本番では地図を表示します。"); },
   faq() { return card("よくある質問", "よくある質問をここにまとめます。"); },
+  
+  // bus.js からの機能を合体
   ...window.BusViews,
 };
 
@@ -167,11 +149,14 @@ const views = {
 function card(title, body) {
   const d = document.createElement("div");
   d.className = "card";
-  const h = document.createElement("h2");
-  h.textContent = title;
+  if (title) {
+    const h = document.createElement("h2");
+    h.textContent = title;
+    d.appendChild(h);
+  }
   const p = document.createElement("p");
   p.textContent = body;
-  d.append(h, p);
+  d.appendChild(p);
   return d;
 }
 
@@ -188,6 +173,7 @@ function openView(name) {
 // ハッシュルーター
 const routes = {
   '#/home': 'home',
+  '#/bus/top': 'bus_top',
   '#/bus/weekday': 'bus_hashiba_weekday',
   '#/bus/holiday': 'bus_hashiba_holiday',
   '#/bus/timetable': 'bus_hashiba_timetable',
@@ -201,13 +187,12 @@ window.addEventListener('hashchange', openRoute);
 openRoute();
 
 // ==========================
-// A2HS
+// PWA インストール関連
 // ==========================
 let deferredPrompt;
 addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  const b = document.getElementById("installBtn"); // ← ここを修正しました（b homeを修正）
-  if (!b) return;
-  b.hidden = false;
+  const b = document.getElementById("installBtn");
+  if (b) b.hidden = false;
 });
