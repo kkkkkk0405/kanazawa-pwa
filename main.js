@@ -180,23 +180,6 @@ const views = {
   // ※ notes() は削除しました
 
   ...window.BusViews, // ←bus.js
-  
-  // 画像時刻表
-  bus_hashiba_timetable() {
-    const wrap = document.createElement("div");
-    wrap.appendChild(card("橋場町行 時刻表", "平日・土日祝のダイヤをまとめて表示しています。"));
-
-    const img = document.createElement("img");
-    img.src = "./images/hashibacho-202603.png";
-    img.alt = "橋場町行バス時刻表";
-    img.style.maxWidth = "100%";
-    img.style.height = "auto";
-    img.style.border = "1px solid #1f2937";
-    img.style.borderRadius = "0.5rem";
-
-    wrap.appendChild(img);
-    return wrap;
-  }
 };
 
 // ==========================
