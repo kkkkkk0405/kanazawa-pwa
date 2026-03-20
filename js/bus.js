@@ -1,5 +1,6 @@
-// js/bus.js ver 1.3.1
+// js/bus.js (ver 1.3.2)
 window.BusViews = {
+  // 1. 交通案内のトップ
   bus_top() {
     const wrap = document.createElement('div');
     wrap.appendChild(card("交通案内", "行き先を選択するか、下の直近便を確認してください。"));
@@ -18,7 +19,6 @@ window.BusViews = {
     });
     wrap.appendChild(grid);
 
-    // 【直近便システム】
     const quickTitle = document.createElement('h3');
     quickTitle.style.cssText = "margin-top:20px; color:var(--muted); font-size:0.8rem;";
     quickTitle.textContent = "🕒 橋場町行：直近の案内";
@@ -28,18 +28,21 @@ window.BusViews = {
     const path = isHoliday ? './data/bus-hashibamachi-weekend-holidays-20260314.json' : './data/bus-hashibamachi-weekday-20260314.json';
     const quickList = document.createElement('div');
     wrap.appendChild(quickList);
-    this._renderBusToElement(path, isHoliday ? 'holiday' : 'weekday', quickList);
+    
+    // ★修正：this ではなく window.BusViews を使う
+    window.BusViews._renderBusToElement(path, isHoliday ? 'holiday' : 'weekday', quickList);
 
     return wrap;
   },
 
-  bus_hashiba_menu() { return this._createSubMenu("橋場町方面", "bus_hashiba"); },
-  bus_library_menu() { return this._createSubMenu("県立図書館方面", "bus_library"); },
+  bus_hashiba_menu() { return window.BusViews._createSubMenu("橋場町方面", "bus_hashiba"); },
+  bus_library_menu() { return window.BusViews._createSubMenu("県立図書館方面", "bus_library"); },
 
-  bus_hashiba_weekday() { return this._createBusView('./data/bus-hashibamachi-weekday-20260314.json', 'weekday'); },
-  bus_hashiba_holiday() { return this._createBusView('./data/bus-hashibamachi-weekend-holidays-20260314.json', 'holiday'); },
-  bus_library_weekday() { return this._createBusView('./data/bus-ishikawakenritutoshokan-202603.json', 'weekday'); },
-  bus_library_holiday() { return this._createBusView('./data/bus-ishikawakenritutoshokan-202603.json', 'holiday'); },
+  bus_hashiba_weekday() { return window.BusViews._createBusView('./data/bus-hashibamachi-weekday-20260314.json', 'weekday'); },
+  bus_hashiba_holiday() { return window.BusViews._createBusView('./data/bus-hashibamachi-weekend-holidays-20260314.json', 'holiday'); },
+  bus_library_weekday() { return window.BusViews._createBusView('./data/bus-ishikawakenritutoshokan-202603.json', 'weekday'); },
+  bus_library_holiday() { return window.BusViews._createBusView('./data/bus-ishikawakenritutoshokan-202603.json', 'holiday'); },
+  
   bus_hashiba_timetable() {
     const wrap = document.createElement("div"); wrap.appendChild(card("橋場町行 時刻表", "2026年3月改正版"));
     const img = document.createElement("img"); img.src = "./images/hashibacho-202603.png"; img.style.width = "100%"; wrap.appendChild(img);
@@ -64,7 +67,7 @@ window.BusViews = {
     const wrap = document.createElement('div');
     const list = document.createElement('div');
     wrap.appendChild(list);
-    this._renderBusToElement(jsonPath, type, list);
+    window.BusViews._renderBusToElement(jsonPath, type, list);
     return wrap;
   },
 
@@ -85,7 +88,7 @@ window.BusViews = {
         const c = card(`発車 ${x.time}`, `${waitTxt}｜${x.operator}｜北鉄${x.route}番`);
         element.appendChild(c);
       });
-      if(element.innerHTML === "") element.innerHTML = "<p>本日の運行は終了しました。</p>";
-    }).catch(() => { element.textContent = "⚠️ データ読み込み失敗"; });
+      if(element.innerHTML === "") element.innerHTML = card("案内終了", "本日の運行はすべて終了しました。");
+    }).catch(() => { element.textContent = "⚠️ データの読み込みに失敗しました。"; });
   }
 };
