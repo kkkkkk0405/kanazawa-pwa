@@ -10,21 +10,20 @@
     body { margin: 0; color: var(--text); background: var(--bg); font-family: system-ui, -apple-system, sans-serif; display: flex; flex-direction: column; height: 100dvh; overflow: hidden; }
     .app { display: grid; grid-template-columns: 280px 1fr; height: 100dvh; }
     aside { background: #0f172a; border-right: 1px solid #1f2937; padding: 16px; overflow-y: auto; }
-    h3 { font-size: 12px; color: var(--muted); margin: 16px 0 8px; text-transform: uppercase; }
-    .link { display: block; padding: 12px; border-radius: 10px; border: 1px solid #1f2937; background: #0b1220; color: #ffffff !important; text-decoration: none !important; margin-bottom: 8px; cursor: pointer; font-size: 0.95rem; }
+    .link { display: block; padding: 12px; border-radius: 10px; border: 1px solid #1f2937; background: #0b1220; color: #ffffff !important; text-decoration: none !important; margin-bottom: 8px; cursor: pointer; }
     .link:hover { border-color: var(--accent); background: #161e2d; }
     main { padding: 16px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; }
     #statusBar { display: flex; flex-wrap: wrap; gap: 8px; }
     .status-item { background: var(--panel); border: 1px solid #1f2937; border-radius: 10px; padding: 8px 12px; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; }
     header.mainbar { display: flex; align-items: center; gap: 10px; padding-bottom: 10px; border-bottom: 1px solid #1f2937; min-height: 50px; }
-    #backBtn { display: none; padding: 6px 14px; background: #1f2937; color: #fff; border: 1px solid #374151; border-radius: 8px; cursor: pointer; font-size: 0.85rem; }
+    #backBtn { display: none; padding: 6px 14px; background: #1f2937; color: #fff; border: 1px solid #374151; border-radius: 8px; cursor: pointer; }
     #viewTitle { font-size: 18px; font-weight: 700; flex: 1; }
     .card { background: var(--panel); border: 1px solid #1f2937; border-radius: 12px; padding: 14px; margin-bottom: 12px; }
     .card h2 { margin: 0 0 8px; font-size: 16px; color: #ffffff; }
-    button.link, .btn { color: #ffffff !important; width: 100%; text-align: left; cursor: pointer; display: block; padding: 14px; background: #0b1220; border: 1px solid #1f2937; border-radius: 12px; margin-bottom: 8px; font-size: 1rem; }
+    button.link, .btn { color: #ffffff !important; width: 100%; text-align: left; cursor: pointer; display: block; padding: 14px; background: #0b1220; border: 1px solid #1f2937; border-radius: 12px; margin-bottom: 8px; }
     #lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 9999; }
-    .lb-inner { max-width: 600px; width: 90%; background: var(--panel); padding: 10px; border-radius: 12px; }
-    #lbImg { width: 100%; max-height: 80vh; object-fit: contain; }
+    .lb-inner { max-width: 600px; width: 90%; background: var(--panel); padding: 10px; border-radius: 12px; position: relative; }
+    #lbImg { width: 100%; max-height: 80vh; object-fit: contain; display: block; }
     @media (max-width: 800px) { .app { grid-template-columns: 1fr; } aside { display: none; } }
   </style>
 </head>
@@ -32,9 +31,7 @@
   <div class="app">
     <aside>
       <div style="font-weight:bold; margin-bottom:20px; font-size:1.1rem;">案内ダッシュボード</div>
-      <h3>メニュー</h3>
       <div id="quickLinks"></div>
-      <h3>交通案内</h3>
       <div id="transportLinks"></div>
     </aside>
     <main>
@@ -50,19 +47,35 @@
       <section id="view"></section>
     </main>
   </div>
-  <div id="lightbox" onclick="hideImage()"><div class="lb-inner"><div id="lbCap" style="text-align:center; color:#ccc; margin-bottom:5px;"></div><img id="lbImg" /></div></div>
+
+  <div id="lightbox" onclick="window.hideImage()">
+    <div class="lb-inner">
+      <div id="lbCap" style="text-align:center; color:#ccc; margin-bottom:5px; font-size:14px;"></div>
+      <img id="lbImg" />
+      <p style="text-align:center; font-size:12px; color:var(--muted);">クリックで閉じる</p>
+    </div>
+  </div>
 
   <script>
-    function card(title, body) {
+    // 全ファイル共通の関数
+    window.card = (title, body) => {
       const d = document.createElement("div"); d.className = "card";
       if (title) { d.innerHTML += `<h2>${title}</h2>`; }
       d.innerHTML += `<p>${body}</p>`;
       return d;
-    }
+    };
+    window.showImage = (src, cap) => {
+      const l = document.getElementById("lightbox");
+      const i = document.getElementById("lbImg");
+      const c = document.getElementById("lbCap");
+      if(l && i) { i.src = src; c.textContent = cap; l.style.display = 'flex'; }
+    };
+    window.hideImage = () => { document.getElementById("lightbox").style.display = 'none'; };
   </script>
 
   <script src="./js/weather.js"></script>
   <script src="./js/bus.js"></script>
-  <script src="./js/shinkansen.js"></script> <script src="./main.js"></script>
+  <script src="./js/shinkansen.js"></script>
+  <script src="./main.js"></script>
 </body>
 </html>
