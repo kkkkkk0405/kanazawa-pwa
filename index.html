@@ -133,6 +133,14 @@
 
     <!-- ========== メイン ========== -->
     <main>
+      <div id="statusBar">
+  <div class="status-item" id="weatherInfo">🕒 天気を読み込み中...</div>
+  <div class="status-item" id="trainInfo">🚄 新幹線: 運行確認中</div>
+</div>
+
+<header class="mainbar">
+  <div id="viewTitle">ホーム</div>
+  ...
       <header class="mainbar">
         <div id="viewTitle">ホーム</div>
         <button id="installBtn" hidden>ホームに追加</button>
@@ -154,7 +162,7 @@
   </div>
 
   <!-- あなたが用意したJS（このファイル名に合わせて変更OK） -->
-  <script src="./js/bus.js"></script>
+  <script src="./js/weather.js"></script><script src="./js/bus.js"></script>
   <script src="./main.js"></script>
 </body>
 </html>
