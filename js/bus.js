@@ -2,6 +2,49 @@
 // バス情報管理モジュール (bus.js)
 // ==========================
 window.BusViews = {
+  // ★新機能：行き先選択のトップ画面
+  bus_top() {
+    const wrap = document.createElement('div');
+    wrap.appendChild(card("交通案内", "調べたい行き先を選択してください。"));
+
+    const grid = document.createElement('div');
+    grid.style.display = "grid";
+    grid.style.gap = "12px";
+    grid.style.marginTop = "10px";
+
+    // ここに行き先ボタンを並べる
+    const menuItems = [
+      { label: "📍 橋場町方面（ひがし茶屋街）", view: "bus_hashiba_weekday" },
+      { label: "🕒 橋場町行 時刻表（画像）", view: "bus_hashiba_timetable" },
+      { label: "📍 県立図書館（崎浦・金大方面）", view: "bus_library_top" }, // まだ作ってないのでデモ用
+    ];
+
+    menuItems.forEach(item => {
+      const btn = document.createElement('button');
+      btn.className = 'link'; // サイドバーと同じデザインを拝借
+      btn.style.textAlign = "left";
+      btn.style.width = "100%";
+      btn.style.cursor = "pointer";
+      btn.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span>${item.label}</span>
+                        <span>❯</span>
+                      </div>`;
+      
+      // クリックしたら main.js の openView を呼び出す
+      btn.onclick = () => {
+        if (typeof openView === 'function') {
+          openView(item.view);
+        } else {
+          // ハッシュ遷移（保険）
+          location.hash = item.view; 
+        }
+      };
+      grid.appendChild(btn);
+    });
+
+    wrap.appendChild(grid);
+    return wrap;
+  },
   // 橋場町（平日）
   bus_hashiba_weekday() {
     const wrap = document.createElement('div');

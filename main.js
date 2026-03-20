@@ -2,7 +2,7 @@
 // 設定・バージョン情報
 // ==========================
 const APP_CONFIG = {
-  version: "ver 1.1.6",
+  version: "ver 1.1.7",
   lastUpdated: "2026/03/20",
 };
 
@@ -57,13 +57,37 @@ function renderLinks() {
 // ==========================
 // 左サイド：交通
 // ==========================
+// 左サイド：交通（「交通案内」1つに絞る）
 const transportation = {
-  hashiba: [
-    { label: '橋場町行バス（平日）',  view: 'bus_hashiba_weekday'   },
-    { label: '橋場町行バス（土日祝）', view: 'bus_hashiba_holiday'   },
-    { label: '橋場町行時刻表',        view: 'bus_hashiba_timetable' },
-  ],
-  library: []
+  main: [
+    { label: '🚌 交通案内（バス）',  view: 'bus_top' }
+  ]
+};
+
+function renderTransport(){
+  const ul = document.getElementById('transportLinks__hashiba'); // 既存のIDを再利用
+  if (ul){
+    ul.innerHTML = '';
+    transportation.main.forEach(({ label, view }) => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.className = 'link'; a.href = '#'; a.dataset.open = view;
+      a.textContent = label;
+      li.appendChild(a);
+      ul.appendChild(li);
+    });
+  }
+}
+
+// タイトルの対応表に「交通案内」を追加
+const titleMap = {
+  home: "ホーム",
+  map: "地図",
+  faq: "よくある質問",
+  bus_top: "交通案内", // ←追加
+  bus_hashiba_weekday: "橋場町行（平日）",
+  bus_hashiba_holiday: "橋場町行（土日祝）",
+  bus_hashiba_timetable: "橋場町行 時刻表"
 };
 
 function renderTransport(){
