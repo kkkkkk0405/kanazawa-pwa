@@ -2,8 +2,8 @@
 // 設定・バージョン情報
 // ==========================
 const APP_CONFIG = {
-  version: "ver 1.1.5",
-  lastUpdated: "2026/03/20", // ← 更新時はここ書き換える
+  version: "ver 1.1.6",
+  lastUpdated: "2026/03/20",
 };
 
 // ==========================
@@ -30,21 +30,18 @@ addEventListener("offline", updateNet);
 updateNet();
 
 // ==========================
-// 左サイド：クイックリンク（編集可）
+// 左サイド：クイックリンク
 // ==========================
 const defaultLinks = [
   { label: "地図（デモ）",         view: "map"   },
   { label: "よくある質問",         view: "faq"   },
-  // ※ メモ機能は削除しました
 ];
 
 function renderLinks() {
-  // ※メモ削除に伴いstoreキーが変わるわけではないですが、初期値からメモが消えます
   const links = store.get("links", defaultLinks);
   const ul = $("#quickLinks");
   if (!ul) return;
   ul.innerHTML = "";
-
   for (const { label, view } of links) {
     const li = document.createElement("li");
     const a  = document.createElement("a");
@@ -58,7 +55,7 @@ function renderLinks() {
 }
 
 // ==========================
-// 左サイド：交通（固定 / ハッシュ遷移）
+// 左サイド：交通
 // ==========================
 const transportation = {
   hashiba: [
@@ -66,46 +63,27 @@ const transportation = {
     { label: '橋場町行バス（土日祝）', view: 'bus_hashiba_holiday'   },
     { label: '橋場町行時刻表',        view: 'bus_hashiba_timetable' },
   ],
-  library: [
-    // 今後追加予定
-  ]
+  library: []
 };
 
 function renderTransport(){
-  // 橋場町行
   const ulHashiba = document.getElementById('transportLinks__hashiba');
   if (ulHashiba){
     ulHashiba.innerHTML = '';
     for (const { label, view } of transportation.hashiba){
       const li = document.createElement('li');
       const a  = document.createElement('a');
-      a.className = 'link';
-      a.href = '#';
+      a.className = "link";
+      a.href = "#";
       a.dataset.open = view;
       a.textContent = label;
       li.appendChild(a);
       ulHashiba.appendChild(li);
     }
   }
-
-  // 県立図書館行き
-  const ulLib = document.getElementById('transportLinks__library');
-  if (ulLib){
-    ulLib.innerHTML = '';
-    for (const { label, view } of transportation.library){
-      const li = document.createElement('li');
-      const a  = document.createElement('a');
-      a.className = 'link';
-      a.href = '#';
-      a.dataset.open = view;
-      a.textContent = label;
-      li.appendChild(a);
-      ulLib.appendChild(li);
-    }
-  }
 }
 
-// 初期描画（サイド）
+// 初期描画
 renderLinks();
 renderTransport();
 
@@ -122,18 +100,9 @@ function showImage(src, caption=''){
 }
 function hideImage(){
   const box = document.getElementById('lightbox');
-  const img = document.getElementById('lbImg');
   box.style.display = 'none';
-  img.src = '';
 }
-if(document.getElementById('lbClose')) {
-  document.getElementById('lbClose').addEventListener('click', hideImage);
-}
-if(document.getElementById('lightbox')) {
-  document.getElementById('lightbox').addEventListener('click', (e)=>{
-    if(e.target.id === 'lightbox') hideImage();
-  });
-}
+if($("#lbClose")) $("#lbClose").addEventListener('click', hideImage);
 
 // ==========================
 // クリックハンドラ
@@ -149,37 +118,23 @@ document.addEventListener("click", (e) => {
 // ビュー：画面コンポーネント
 // ==========================
 const views = {
-  () {
+  home() { // ← ここを修正しました（homeを追加）
     const wrap = document.createElement("div");
-    
-    // ホーム画面のコンテンツ
     wrap.appendChild(card("ようこそ", "左のメニューから業務ツールを選択してください。"));
-    
-    // バージョン情報の表示エリア
     const info = document.createElement("div");
     info.style.marginTop = "2rem";
     info.style.padding = "1rem";
-    info.style.color = "#6b7280"; // グレー文字
+    info.style.color = "#6b7280";
     info.style.fontSize = "0.85rem";
     info.style.textAlign = "center";
-    info.style.borderTop = "1px solid #e5e7eb";
-    info.innerHTML = `
-      <p>App Version: <strong>${APP_CONFIG.version}</strong></p>
-      <p>Last Updated: ${APP_CONFIG.lastUpdated}</p>
-    `;
-    
+    info.style.borderTop = "1px solid #1f2937";
+    info.innerHTML = `<p>App Version: <strong>${APP_CONFIG.version}</strong></p><p>Last Updated: ${APP_CONFIG.lastUpdated}</p>`;
     wrap.appendChild(info);
     return wrap;
   },
-  map() {
-    return card("地図（デモ）", "本番では地図SDKや静的マップ画像をキャッシュして表示。");
-  },
-  faq() {
-    return card("よくある質問", "後で定型文を入れられるようにします。");
-  },
-  // ※ notes() は削除しました
-
-  ...window.BusViews, // ←bus.js
+  map() { return card("地図（デモ）", "本番では地図を表示します。"); },
+  faq() { return card("よくある質問", "よくある質問をここにまとめます。"); },
+  ...window.BusViews,
 };
 
 // ==========================
@@ -198,9 +153,8 @@ function card(title, body) {
 
 const titleMap = {
   home: "ホーム",
-  map: "地図（デモ）",
+  map: "地図",
   faq: "よくある質問",
-  // ※ notes は削除しました
   bus_hashiba_weekday: "橋場町行バス（平日）",
   bus_hashiba_holiday: "橋場町行バス（土日祝）",
   bus_hashiba_timetable: "橋場町行 時刻表"
@@ -216,34 +170,19 @@ function openView(name) {
   v.appendChild(fn());
 }
 
-// 検索フォーカス
-addEventListener("keydown", (e) => {
-  if (e.key === "/" || e.key.toLowerCase() === "q") {
-    e.preventDefault();
-    const q = $("#q");
-    if (q) q.focus();
-  }
-});
-
-// ==========================
 // ハッシュルーター
-// ==========================
 const routes = {
-  '#/home':           'home',
-  '#/bus/weekday':    'bus_hashiba_weekday',
-  '#/bus/holiday':    'bus_hashiba_holiday',
-  '#/bus/timetable':  'bus_hashiba_timetable',
+  '#/home': 'home',
+  '#/bus/weekday': 'bus_hashiba_weekday',
+  '#/bus/holiday': 'bus_hashiba_holiday',
+  '#/bus/timetable': 'bus_hashiba_timetable',
 };
 
 function openRoute() {
   const h = location.hash || '#/home';
-  const viewName = routes[h] || 'home';
-  openView(viewName);
+  openView(routes[h] || 'home');
 }
-
 window.addEventListener('hashchange', openRoute);
-
-if (!location.hash) location.hash = '#/home';
 openRoute();
 
 // ==========================
@@ -253,14 +192,7 @@ let deferredPrompt;
 addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  const b home= document.getElementById("installBtn");
+  const b = document.getElementById("installBtn"); // ← ここを修正しました（b homeを修正）
   if (!b) return;
   b.hidden = false;
-  b.addEventListener("click", async () => {
-    b.hidden = true;
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    await deferredPrompt.userChoice;
-    deferredPrompt = null;
-  });
 });
