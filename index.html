@@ -7,19 +7,15 @@
   <style>
     :root { --bg:#0b1220; --panel:#111827; --muted:#9ca3af; --text:#e5e7eb; --accent:#2563eb; }
     * { box-sizing: border-box; }
-    body {
-      margin: 0; color: var(--text); background: var(--bg);
-      font-family: system-ui, -apple-system, sans-serif;
-      display: flex; flex-direction: column; height: 100dvh;
-    }
+    body { margin: 0; color: var(--text); background: var(--bg); font-family: system-ui, -apple-system, sans-serif; display: flex; flex-direction: column; height: 100dvh; }
     .app { display: grid; grid-template-columns: 280px 1fr; height: 100dvh; }
     aside { background: #0f172a; border-right: 1px solid #1f2937; padding: 16px; overflow-y: auto; }
     
-    /* ★修正：サイドバーのリンクが青くならないように固定 */
+    /* サイドバーの文字が絶対に青くならない設定 */
     .link { 
       display: block; padding: 12px; border-radius: 10px; border: 1px solid #1f2937; 
       background: #0b1220; color: #ffffff !important; text-decoration: none !important;
-      margin-bottom: 6px; cursor: pointer;
+      margin-bottom: 8px; cursor: pointer; font-size: 0.95rem;
     }
     .link:hover { border-color: var(--accent); background: #161e2d; }
     
@@ -28,16 +24,16 @@
     .status-item { background: var(--panel); border: 1px solid #1f2937; border-radius: 10px; padding: 8px 12px; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; }
     
     header.mainbar { display: flex; align-items: center; gap: 10px; padding-bottom: 10px; border-bottom: 1px solid #1f2937; }
-    #backBtn { display: none; padding: 6px 14px; background: #1f2937; color: #fff; border: 1px solid #374151; border-radius: 8px; cursor: pointer; }
+    #backBtn { display: none; padding: 6px 14px; background: #1f2937; color: #fff; border: 1px solid #374151; border-radius: 8px; cursor: pointer; font-size: 0.85rem; }
     #viewTitle { font-size: 18px; font-weight: 700; flex: 1; }
 
     .card { background: var(--panel); border: 1px solid #1f2937; border-radius: 12px; padding: 14px; margin-bottom: 12px; }
     .card h2 { margin: 0 0 8px; font-size: 16px; color: #ffffff; }
     
-    /* ★重要：ボタンの文字を真っ白に */
+    /* 中身のボタンも白文字に固定 */
     button.link, .btn {
       color: #ffffff !important; width: 100%; text-align: left; cursor: pointer; display: block; 
-      padding: 14px; background: #0b1220; border: 1px solid #1f2937; border-radius: 12px; margin-bottom: 8px;
+      padding: 14px; background: #0b1220; border: 1px solid #1f2937; border-radius: 12px; margin-bottom: 8px; font-size: 1rem;
     }
     button.link:hover, .btn:hover { border-color: var(--accent); }
 
@@ -51,12 +47,10 @@
 <body>
   <div class="app">
     <aside>
-      <div style="font-weight:bold; margin-bottom:20px;">案内ダッシュボード</div>
+      <div style="font-weight:bold; margin-bottom:20px; font-size:1.1rem;">案内ダッシュボード</div>
       <h3>メニュー</h3>
-      <div id="quickLinks"></div>
-      <h3>交通案内</h3>
-      <div id="transportLinks"></div>
-    </aside>
+      <div id="quickLinks"></div> <h3>交通案内</h3>
+      <div id="transportLinks"></div> </aside>
     <main>
       <div id="statusBar">
         <div class="status-item" id="weatherToday">☀️ 今日: --°C</div>
@@ -70,7 +64,7 @@
       <section id="view"></section>
     </main>
   </div>
-  <div id="lightbox" onclick="hideImage()"><div class="lb-inner"><div id="lbCap" style="text-align:center; color:#ccc;"></div><img id="lbImg" /></div></div>
+  <div id="lightbox" onclick="hideImage()"><div class="lb-inner"><div id="lbCap" style="text-align:center; color:#ccc; margin-bottom:5px;"></div><img id="lbImg" /></div></div>
   
   <script src="./js/weather.js"></script>
   <script src="./js/bus.js"></script>
