@@ -180,7 +180,7 @@ const views = {
   // ※ notes() は削除しました
 
   // 橋場町（平日）
-  bus_hashiba_weekday() {
+  /*bus_hashiba_weekday() {
     const wrap = document.createElement('div');
 
     const selOp = document.createElement('select');
@@ -395,7 +395,10 @@ const views = {
 
     return wrap;
   },
+*/
 
+  ...window.BusViews, // ←bus.js
+  
   // 画像時刻表
   bus_hashiba_timetable() {
     const wrap = document.createElement("div");
