@@ -64,8 +64,11 @@
     </aside>
     <main>
       <div id="statusBar">
-        <div class="status-item" id="weatherInfo">🕒 天気確認中...</div>
-        <div class="status-item" id="trainInfo">🚄 新幹線: 正常運行</div>
+        <div class="status-item" id="weatherToday">☀️ 今日: --°C</div>
+        <div class="status-item" id="weatherTomorrow">📅 明日: --°C</div>
+        <div class="status-item" id="trainStatus" style="cursor:pointer; background:var(--accent);" onclick="openView('shinkansen_top')">
+        🚄 運行状況を確認する ❯
+      </div>
       </div>
       <header class="mainbar">
         <button id="backBtn">⬅ 戻る</button>
