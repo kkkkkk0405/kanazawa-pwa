@@ -1,187 +1,125 @@
-// ==========================
-// バス情報管理モジュール (bus.js)
-// ==========================
 window.BusViews = {
-  // ★新機能：行き先選択のトップ画面
+  // 1. 交通案内のトップ画面
   bus_top() {
     const wrap = document.createElement('div');
     wrap.appendChild(card("交通案内", "調べたい行き先を選択してください。"));
-
-    const grid = document.createElement('div');
-    grid.style.display = "grid";
-    grid.style.gap = "12px";
-    grid.style.marginTop = "10px";
-
-    // ここに行き先ボタンを並べる
-    const menuItems = [
-      { label: "📍 橋場町方面（ひがし茶屋街）", view: "bus_hashiba_weekday" },
-      { label: "🕒 橋場町行 時刻表（画像）", view: "bus_hashiba_timetable" },
-      { label: "📍 県立図書館（崎浦・金大方面）", view: "bus_library_top" }, // まだ作ってないのでデモ用
+    const items = [
+      { label: "📍 橋場町方面（ひがし茶屋街）", view: "bus_hashiba_menu" },
+      { label: "📍 県立図書館（崎浦・金大方面）", view: "home" } // 今後作成
     ];
-
-    menuItems.forEach(item => {
-      const btn = document.createElement('button');
-      btn.className = 'link'; // サイドバーと同じデザインを拝借
-      btn.style.textAlign = "left";
-      btn.style.width = "100%";
-      btn.style.cursor = "pointer";
-      btn.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span>${item.label}</span>
-                        <span>❯</span>
-                      </div>`;
-      
-      // クリックしたら main.js の openView を呼び出す
-      btn.onclick = () => {
-        if (typeof openView === 'function') {
-          openView(item.view);
-        } else {
-          // ハッシュ遷移（保険）
-          location.hash = item.view; 
-        }
-      };
-      grid.appendChild(btn);
+    items.forEach(item => {
+      const b = document.createElement('button');
+      b.className = 'link';
+      b.innerHTML = `<div style="display:flex; justify-content:space-between;"><span>${item.label}</span><span>❯</span></div>`;
+      b.onclick = () => openView(item.view);
+      wrap.appendChild(b);
     });
-
-    wrap.appendChild(grid);
     return wrap;
   },
-  // 橋場町（平日）
+
+  // 2. 橋場町の選択メニュー
+  bus_hashiba_menu() {
+    const wrap = document.createElement('div');
+    wrap.appendChild(card("橋場町方面", "運行日を選択してください。"));
+    const items = [
+      { label: "📅 平日ダイヤ（月〜金）", view: "bus_hashiba_weekday" },
+      { label: "🎉 土日祝ダイヤ", view: "bus_hashiba_holiday" },
+      { label: "🕒 時刻表を表示（画像）", view: "bus_hashiba_timetable" }
+    ];
+    items.forEach(item => {
+      const b = document.createElement('button');
+      b.className = 'link';
+      b.innerHTML = `<div style="display:flex; justify-content:space-between;"><span>${item.label}</span><span>❯</span></div>`;
+      b.onclick = () => openView(item.view);
+      wrap.appendChild(b);
+    });
+    return wrap;
+  },
+
+  // 3. 橋場町（平日）のリアルタイム案内
   bus_hashiba_weekday() {
-    const wrap = document.createElement('div');
-    const selOp = document.createElement('select');
-    selOp.innerHTML = `
-      <option value="all">事業者すべて</option>
-      <option value="北鉄バス">北鉄バスのみ</option>
-      <option value="JRバス">JRバスのみ</option>
-    `;
-    wrap.appendChild(selOp);
-    const list = document.createElement('div');
-    wrap.appendChild(list);
-
-    const toMin = (hhmm) => { const [h, m] = hhmm.split(':').map(Number); return h*60 + m; };
-    const nowMin = () => { const n = new Date(); return n.getHours()*60 + n.getMinutes(); };
-
-    const render = (data) => {
-      list.innerHTML = '';
-      const nmin = nowMin();
-      const ops = data.operators.filter(op => selOp.value === 'all' ? true : op.name === selOp.value);
-      let candidates = [];
-
-      for (const op of ops) {
-        for (const item of op.weekday) {
-          const tmin = toMin(item.time);
-          if (tmin >= nmin) {
-            candidates.push({ ...item, operator: op.name, wait: tmin - nmin, board: op.board_stop, alight: op.alight_stop });
-          }
-        }
-      }
-
-      if (candidates.length === 0) {
-        for (const op of ops) {
-          for (const item of op.weekday.slice(0, 3)) {
-            const tmin = toMin(item.time) + 24 * 60;
-            candidates.push({ ...item, operator: op.name, wait: tmin - nmin, board: op.board_stop, alight: op.alight_stop });
-          }
-        }
-      }
-
-      candidates.sort((a, b) => a.wait - b.wait);
-      const top3 = candidates.slice(0, 3);
-      if (!top3.length) { list.appendChild(card('本日の運行なし', '')); return; }
-
-      top3.forEach(x => {
-        const info = x.route ? `北鉄${x.route}番｜乗: ${x.board}` : `JR(${x.dest})｜乗: ${x.board}`;
-        const waitTxt = x.wait >= 60 ? `あと ${Math.floor(x.wait/60)}時間${x.wait%60}分` : `あと ${x.wait}分`;
-        const c = card(`発車 ${x.time}`, `${waitTxt}｜${x.operator}｜${info}`);
-        
-        // 写真表示ボタン
-        const btn = document.createElement('button');
-        btn.className = 'btn';
-        btn.textContent = '乗り場の写真';
-        const imgSrc = (x.operator === '北鉄バス') ? './images/HOKUTETSUBUS_frontof_hoteltorifito.jpeg' : './images/JRBUS_frontof_hokurikubank.jpeg';
-        btn.addEventListener('click', () => showImage(imgSrc, x.operator + ' 乗り場'));
-        c.appendChild(btn);
-        
-        list.appendChild(c);
-      });
-    };
-
-    fetch('./data/bus-hashibamachi-weekday-20260314.json')
-      .then(r => r.json()).then(data => { render(data); selOp.addEventListener('change', () => render(data)); });
-    return wrap;
+    return this._createBusView('./data/bus-hashibamachi-weekday-20260314.json', 'weekday');
   },
 
-  // 橋場町（土日祝）
+  // 4. 橋場町（土日祝）のリアルタイム案内
   bus_hashiba_holiday() {
-    const wrap = document.createElement('div');
-    const selOp = document.createElement('select');
-    selOp.innerHTML = `<option value="all">事業者すべて</option><option value="北鉄バス">北鉄バスのみ</option><option value="JRバス">JRバスのみ</option>`;
-    wrap.appendChild(selOp);
-    const list = document.createElement('div');
-    wrap.appendChild(list);
-
-    const toMin = (hhmm) => { const [h, m] = hhmm.split(':').map(Number); return h*60 + m; };
-    const nowMin = () => { const n = new Date(); return n.getHours()*60 + n.getMinutes(); };
-
-    const render = (data) => {
-      list.innerHTML = '';
-      const nmin = nowMin();
-      const ops = data.operators.filter(op => selOp.value === 'all' ? true : op.name === selOp.value);
-      let candidates = [];
-      for (const op of ops) {
-        for (const item of op.holiday) {
-          const tmin = toMin(item.time);
-          if (tmin >= nmin) { candidates.push({ ...item, operator: op.name, wait: tmin - nmin, board: op.board_stop, alight: op.alight_stop }); }
-        }
-      }
-      if (candidates.length === 0) {
-        for (const op of ops) {
-          for (const item of op.holiday.slice(0, 3)) {
-            const tmin = toMin(item.time) + 24 * 60;
-            candidates.push({ ...item, operator: op.name, wait: tmin - nmin, board: op.board_stop, alight: op.alight_stop });
-          }
-        }
-      }
-      candidates.sort((a, b) => a.wait - b.wait);
-      const top3 = candidates.slice(0, 3);
-      if (!top3.length) { list.appendChild(card('本日の運行なし', '')); return; }
-
-      top3.forEach(x => {
-        const info = x.route ? `北鉄${x.route}番｜乗: ${x.board}` : `JR(${x.dest})｜乗: ${x.board}`;
-        const waitTxt = x.wait >= 60 ? `あと ${Math.floor(x.wait/60)}時間${x.wait%60}分` : `あと ${x.wait}分`;
-        const c = card(`発車 ${x.time}`, `${waitTxt}｜${x.operator}｜${info}`);
-        
-        // 土日祝にも写真ボタンを追加！
-        const btn = document.createElement('button');
-        btn.className = 'btn';
-        btn.textContent = '乗り場の写真';
-        const imgSrc = (x.operator === '北鉄バス') ? './images/HOKUTETSUBUS_frontof_hoteltorifito.jpeg' : './images/JRBUS_frontof_hokurikubank.jpeg';
-        btn.addEventListener('click', () => showImage(imgSrc, x.operator + ' 乗り場'));
-        c.appendChild(btn);
-
-        list.appendChild(c);
-      });
-    };
-
-    fetch('./data/bus-hashibamachi-weekend-holidays-20260314.json')
-      .then(r => r.json()).then(data => { render(data); selOp.addEventListener('change', () => render(data)); });
-    return wrap;
+    return this._createBusView('./data/bus-hashibamachi-weekend-holidays-20260314.json', 'holiday');
   },
 
-  // 画像時刻表（main.jsから引っ越し完了！）
+  // 5. 画像時刻表
   bus_hashiba_timetable() {
     const wrap = document.createElement("div");
-    wrap.appendChild(card("橋場町行 時刻表", "平日・土日祝のダイヤをまとめて表示しています。"));
-
+    wrap.appendChild(card("橋場町行 時刻表", "2026年3月改正版のダイヤです。"));
     const img = document.createElement("img");
     img.src = "./images/hashibacho-202603.png";
-    img.alt = "橋場町行バス時刻表";
-    img.style.maxWidth = "100%";
-    img.style.height = "auto";
+    img.style.width = "100%";
+    img.style.borderRadius = "10px";
     img.style.border = "1px solid #1f2937";
-    img.style.borderRadius = "0.5rem";
-
     wrap.appendChild(img);
+    return wrap;
+  },
+
+  // 🛠️ 内部用：バス画面を作る共通メカニズム（これを使い回すことでエラーを防ぎます）
+  _createBusView(jsonPath, type) {
+    const wrap = document.createElement('div');
+    const list = document.createElement('div');
+    const loading = document.createElement('p');
+    loading.textContent = "⌛ データを読み込み中...";
+    wrap.appendChild(loading);
+    wrap.appendChild(list);
+
+    const toMin = (hhmm) => { const [h, m] = hhmm.split(':').map(Number); return h * 60 + m; };
+    const nowMin = () => { const n = new Date(); return n.getHours() * 60 + n.getMinutes(); };
+
+    fetch(jsonPath)
+      .then(r => r.json())
+      .then(data => {
+        loading.remove();
+        const nmin = nowMin();
+        let candidates = [];
+
+        data.operators.forEach(op => {
+          const times = (type === 'weekday') ? op.weekday : op.holiday;
+          times.forEach(item => {
+            const tmin = toMin(item.time);
+            // 本日の便
+            if (tmin >= nmin) {
+              candidates.push({ ...item, operator: op.name, wait: tmin - nmin, board: op.board_stop });
+            }
+          });
+        });
+
+        // 便がない場合は翌日の早朝便を表示
+        if (candidates.length === 0) {
+          data.operators.forEach(op => {
+            const times = (type === 'weekday') ? op.weekday : op.holiday;
+            times.slice(0, 2).forEach(item => {
+              const tmin = toMin(item.time) + 1440; // 24時間後
+              candidates.push({ ...item, operator: op.name, wait: tmin - nmin, board: op.board_stop });
+            });
+          });
+        }
+
+        candidates.sort((a, b) => a.wait - b.wait);
+        candidates.slice(0, 3).forEach(x => {
+          const waitTxt = x.wait >= 60 ? `あと ${Math.floor(x.wait / 60)}時間${x.wait % 60}分` : `あと ${x.wait}分`;
+          const info = x.route ? `北鉄${x.route}番｜乗: ${x.board}` : `JR(${x.dest})｜乗: ${x.board}`;
+          
+          const c = card(`発車 ${x.time}`, `${waitTxt}｜${x.operator}｜${info}`);
+          
+          // 写真ボタン
+          const btn = document.createElement('button');
+          btn.className = 'btn';
+          btn.textContent = '📸 乗り場の写真';
+          const imgSrc = (x.operator === '北鉄バス') ? './images/HOKUTETSUBUS_frontof_hoteltorifito.jpeg' : './images/JRBUS_frontof_hokurikubank.jpeg';
+          btn.onclick = () => showImage(imgSrc, `${x.operator} 乗り場`);
+          
+          c.appendChild(btn);
+          list.appendChild(c);
+        });
+      })
+      .catch(() => { loading.textContent = "⚠️ データの読み込みに失敗しました。"; });
+
     return wrap;
   }
 };
