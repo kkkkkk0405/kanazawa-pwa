@@ -68,18 +68,38 @@
     .btn:hover { border-color: #334155; }
 
     /* ライトボックス */
+/* ライトボックス（コンパクト修正版） */
     #lightbox {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+      /* position, insetなどはそのまま */
+      position: fixed; inset: 0; background: rgba(0,0,0,0.8);
       display: none; align-items: center; justify-content: center; padding: 24px; z-index: 9999;
     }
     .lb-inner {
-      max-width: min(1000px, 92vw); width: 100%;
+      /* ★修正点1：最大幅を小さく（1000px -> 600px） */
+      max-width: min(600px, 92vw); 
+      width: 100%;
       background: var(--panel); border: 1px solid #1f2937; border-radius: 14px; padding: 12px;
+      
+      /* ★修正点2：少し影をつけて浮いているように見せる */
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     }
+    /* lb-top, lbCap, lbCloseはそのまま */
     .lb-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 8px; }
     #lbCap { font-size: 14px; color: #cbd5e1; }
-    #lbClose { cursor: pointer; border: 1px solid #1f2937; padding: 6px 10px; border-radius: 10px; }
-    #lbImg { width: 100%; height: auto; display: block; border-radius: 10px; border: 1px solid #1f2937; }
+    #lbClose { cursor: pointer; border: 1px solid #1f2937; padding: 6px 10px; border-radius: 10px; background: #0b1220; color: var(--text); }
+    #lbClose:hover { border-color: #334155; }
+
+    #lbImg {
+      width: 100%;
+      
+      /* ★修正点3：縦方向のはみ出しを防ぐ（画面高さの80%まで） */
+      max-height: 80vh; 
+      
+      /* ★修正点4：画像が枠内にきれいに収まるように調整 */
+      object-fit: contain; 
+      
+      height: auto; display: block; border-radius: 10px; border: 1px solid #1f2937;
+    }
 
     /* レスポンシブ */
     @media (max-width: 960px) {
