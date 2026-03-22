@@ -24,6 +24,7 @@ window.openView = (name, dir = 'next') => {
   
   let viewFn = (window.BusViews ? window.BusViews[name] : null) || 
                (window.KenrokuenViews ? window.KenrokuenViews[name] : null) ||
+               (window.SpotViews ? window.SpotViews[name] : null) ||
                (window.ShinkansenViews ? window.ShinkansenViews[name] : null);
 
   const fn = viewFn || (() => card("ようこそ", "メニューを選択してください。"));
@@ -45,7 +46,7 @@ async function initializeApp() {
   const t = $('#transportLinks'); 
   const footer = $('#appInfo');
 
-  if (q) q.innerHTML = `<div class="link" onclick="openView('map')">🗺️ 地図</div><div class="link" onclick="openView('faq')">❓ FAQ</div>`;
+  if (q) q.innerHTML = `<div class="link" onclick="openView('map')">🗺️ 地図</div><div class="link" onclick="openView('spot_list')">🏛️ 各種施設</div><div class="link" onclick="openView('faq')">❓ FAQ</div>`;
   if (t) t.innerHTML = `<div class="link" onclick="openView('bus_top')">🚌 交通案内（バス）</div>`;
   if (footer) footer.innerHTML = `<div class="version-info">ver ${APP_VERSION} / Updated: ${LAST_UPDATED}</div>`;
 
