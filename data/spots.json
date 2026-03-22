@@ -3,13 +3,15 @@
     {
       "id": "kenrokuen",
       "name": "兼六園",
+      "closed": "年中無休",
+      "fee": "大人320円 / 小人100円",
       "links": {
-        "map": "https://maps.google.com/?q=兼六園",
+        "map": "http://googleusercontent.com/maps.google.com/kenrokuen",
         "official": "https://www.pref.ishikawa.jp/siro-niwa/kenrokuen/"
       },
       "periods": [
-        { "start": 301, "end": 1015, "early": ["05:00", "06:45"], "regular": ["07:00", "18:00"] },
-        { "start": 1016, "end": 229, "early": ["06:00", "07:45"], "regular": ["08:00", "17:00"] }
+        { "start": 301, "end": 331, "early": ["05:00", "06:45"], "regular": ["07:00", "18:00"] },
+        { "start": 1101, "end": 229, "early": ["06:00", "07:45"], "regular": ["08:00", "17:00"] }
       ]
     }
   ]
