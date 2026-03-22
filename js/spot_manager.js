@@ -1,6 +1,6 @@
-// js/spot_manager.js ver 1.5.0
+// js/spot_manager.js ver 1.5.5
 window.SpotManager = {
-  selectedSpotId: null, // 現在表示中の施設ID
+  selectedSpotId: null,
 
   async fetchSpots() {
     try {
@@ -9,6 +9,14 @@ window.SpotManager = {
       const data = await res.json();
       return data.spots || [];
     } catch (e) { return []; }
+  },
+
+  // 補助関数：現在の営業時間を文字列で取得
+  _getTodayHours(spot) {
+    const now = new Date();
+    const today = (now.getMonth() + 1) * 100 + now.getDate();
+    const p = spot.periods.find(r => r.start > r.end ? (today >= r.start || today <= r.end) : (today >= r.start && today <= r.end));
+    return p ? `${p.regular[0]}〜${p.regular[1]}` : "時間不明";
   },
 
   checkStatus(spot) {
@@ -26,26 +34,32 @@ window.SpotManager = {
   async renderList() {
     const wrap = document.createElement('div');
     const spots = await this.fetchSpots();
+
     spots.forEach(spot => {
       const status = this.checkStatus(spot);
+      const hours = this._getTodayHours(spot);
       const item = document.createElement('div');
       item.className = 'link';
       item.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <div style="flex:1;">
-            <div style="display:flex; align-items:center; gap:8px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
               <span style="font-size:10px; padding:2px 6px; border-radius:4px; background:${status.color}; color:#fff; font-weight:bold;">${status.text}</span>
               <div style="font-weight:bold; color:#fff;">${spot.name}</div>
             </div>
+            <div style="font-size:11px; color:var(--muted); padding-left:2px; display:flex; flex-wrap:wrap; gap:12px;">
+              <span><b style="color:var(--text); opacity:0.7;">休</b> ${spot.closed || '無休'}</span>
+              <span><b style="color:var(--text); opacity:0.7;">営</b> ${hours}</span>
+              <span><b style="color:var(--text); opacity:0.7;">🎫</b> ${spot.fee || '要確認'}</span>
+            </div>
           </div>
-          <div style="font-size:12px; color:var(--accent);">詳細 ❯</div>
+          <div style="font-size:12px; color:var(--accent); font-weight:bold;">詳細 ❯</div>
         </div>`;
       
       item.onclick = () => {
         if (spot.id === 'kenrokuen') {
           openView('kenrokuen_detail');
         } else {
-          // 兼六園以外は「汎用詳細画面」へ
           this.selectedSpotId = spot.id;
           openView('spot_detail');
         }
@@ -55,7 +69,7 @@ window.SpotManager = {
     return wrap;
   },
 
-  // ★新規追加: 全施設共通の詳細画面
+  // --- 汎用詳細画面 ---
   async renderDetail() {
     const spots = await this.fetchSpots();
     const spot = spots.find(s => s.id === this.selectedSpotId);
@@ -64,11 +78,10 @@ window.SpotManager = {
     const wrap = document.createElement('div');
     const status = this.checkStatus(spot);
 
-    // 1. 基本情報カード
     wrap.appendChild(card(spot.name, `
-      <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
         <span style="padding:4px 10px; border-radius:15px; background:${status.color}; color:#fff; font-weight:bold; font-size:13px;">${status.text}</span>
-        <span style="font-size:14px;"><strong style="color:var(--muted); margin-right:4px;">休</strong> ${spot.closed || '年中無休'}</span>
+        <span style="font-size:14px;"><strong style="color:var(--muted);">休</strong> ${spot.closed || '年中無休'}</span>
       </div>
       <div style="background:rgba(255,255,255,0.05); padding:12px; border-radius:8px;">
         <small style="color:var(--muted);">観覧料・入園料</small><br>
@@ -76,7 +89,6 @@ window.SpotManager = {
       </div>
     `));
 
-    // 2. 営業時間カード
     let rows = "";
     spot.periods.forEach(p => {
       rows += `<tr><td style="padding:8px;">通年</td><td style="text-align:center;">${p.regular[0]} 〜 ${p.regular[1]}</td></tr>`;
@@ -90,10 +102,9 @@ window.SpotManager = {
       </table>
     `));
 
-    // 3. リンクカード
     const linkCard = card("🔗 外部リンク", "");
     const official = document.createElement('button');
-    official.className = 'btn'; official.innerHTML = '🌐 公式サイト';
+    official.className = 'btn'; official.innerHTML = '🌐 公式サイトを開く';
     official.onclick = () => window.open(spot.links.official, '_blank');
     linkCard.appendChild(official);
     wrap.appendChild(linkCard);
@@ -101,6 +112,7 @@ window.SpotManager = {
     return wrap;
   },
 
+  // --- 管理者ツール ---
   renderAdmin() {
     const wrap = document.createElement('div');
     wrap.appendChild(card("🔧 施設データ追加", "全上書き用JSONを生成します。"));
@@ -108,7 +120,7 @@ window.SpotManager = {
     form.style.padding = "0 14px";
     form.innerHTML = `
       <div style="display:flex; flex-direction:column; gap:8px;">
-        <input type="text" id="add-id" placeholder="ID (例: 21bi)" class="btn" style="background:var(--bg);">
+        <input type="text" id="add-id" placeholder="ID" class="btn" style="background:var(--bg);">
         <input type="text" id="add-name" placeholder="施設名" class="btn" style="background:var(--bg);">
         <input type="text" id="add-closed" placeholder="定休日" class="btn" style="background:var(--bg);">
         <input type="text" id="add-fee" placeholder="値段" class="btn" style="background:var(--bg);">
@@ -148,6 +160,6 @@ window.SpotManager = {
 
 window.SpotViews = {
   spot_list: () => window.SpotManager.renderList(),
-  spot_detail: () => window.SpotManager.renderDetail(), // 汎用詳細
+  spot_detail: () => window.SpotManager.renderDetail(),
   admin: () => window.SpotManager.renderAdmin()
 };
