@@ -1,4 +1,4 @@
-const APP_VERSION = "1.2.6";
+const APP_VERSION = "1.2.7";
 const LAST_UPDATED = "2026-03-22";
 
 window.$ = (s, r = document) => r.querySelector(s);
@@ -6,7 +6,8 @@ window.$ = (s, r = document) => r.querySelector(s);
 window.titleMap = {
   home: "ホーム", map: "地図", faq: "よくある質問",
   bus_top: "交通案内", bus_hashiba_menu: "橋場町方面", bus_library_menu: "県立図書館方面",
-  shinkansen_top: "鉄道 運行状況一覧", kenrokuen_detail: "兼六園 詳細案内"
+  shinkansen_top: "鉄道 運行状況一覧", kenrokuen_detail: "兼六園 詳細案内", spot_list: "各種施設一覧",
+  admin: "管理者ツール"
 };
 
 window.openView = (name, dir = 'next') => {
