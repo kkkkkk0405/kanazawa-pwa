@@ -77,7 +77,6 @@ async function renderMenu() {
   if (window.Kenrokuen) {
     try {
       await Kenrokuen.renderChip('#kenrokuenChip');
-      await Kenrokuen.renderTomorrowChip('#kenrokuenTomorrowChip');
     } catch (e) {
       console.error("兼六園データの取得に失敗:", e);
     }
