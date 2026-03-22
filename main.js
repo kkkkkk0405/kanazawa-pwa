@@ -54,6 +54,7 @@ window.openView = async (name, dir = 'next') => {
 $("#backBtn").onclick = () => {
   const h = location.hash.replace('#', '');
   if (h === 'bus_top') return openView('home', 'back');
+  if (h === 'kenrokuen_detail' || h === 'spot_detail') return openView('spot_list', 'back');
   if (h.includes('bus_')) return openView('bus_top', 'back');
   if (h === 'spot_list' || h === 'admin') return openView('home', 'back');
   openView('home', 'back');

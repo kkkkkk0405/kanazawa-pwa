@@ -1,16 +1,14 @@
-// js/spot_manager.js ver 1.4.0 (全上書き対応版)
+// js/spot_manager.js ver 1.5.0
 window.SpotManager = {
-  // 現在のデータを読み込む
+  selectedSpotId: null, // 現在表示中の施設ID
+
   async fetchSpots() {
     try {
       const res = await fetch('data/spots.json');
       if (!res.ok) return [];
       const data = await res.json();
       return data.spots || [];
-    } catch (e) {
-      console.error("読み込み失敗:", e);
-      return [];
-    }
+    } catch (e) { return []; }
   },
 
   checkStatus(spot) {
@@ -39,38 +37,86 @@ window.SpotManager = {
               <span style="font-size:10px; padding:2px 6px; border-radius:4px; background:${status.color}; color:#fff; font-weight:bold;">${status.text}</span>
               <div style="font-weight:bold; color:#fff;">${spot.name}</div>
             </div>
-            <div style="font-size:11px; color:var(--muted); margin-top:6px; padding-left:4px;">
-              🗓 ${spot.closed || '無休'} / 🎫 ${spot.fee || '要確認'}
-            </div>
           </div>
-          <div style="font-size:12px; color:var(--accent);">❯</div>
+          <div style="font-size:12px; color:var(--accent);">詳細 ❯</div>
         </div>`;
+      
       item.onclick = () => {
-        if (spot.id === 'kenrokuen') openView('kenrokuen_detail');
-        else if (spot.links?.official) window.open(spot.links.official, '_blank');
+        if (spot.id === 'kenrokuen') {
+          openView('kenrokuen_detail');
+        } else {
+          // 兼六園以外は「汎用詳細画面」へ
+          this.selectedSpotId = spot.id;
+          openView('spot_detail');
+        }
       };
       wrap.appendChild(item);
     });
     return wrap;
   },
 
+  // ★新規追加: 全施設共通の詳細画面
+  async renderDetail() {
+    const spots = await this.fetchSpots();
+    const spot = spots.find(s => s.id === this.selectedSpotId);
+    if (!spot) return card("エラー", "データが見つかりません");
+
+    const wrap = document.createElement('div');
+    const status = this.checkStatus(spot);
+
+    // 1. 基本情報カード
+    wrap.appendChild(card(spot.name, `
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+        <span style="padding:4px 10px; border-radius:15px; background:${status.color}; color:#fff; font-weight:bold; font-size:13px;">${status.text}</span>
+        <span style="font-size:14px;">🗓 ${spot.closed || '年中無休'}</span>
+      </div>
+      <div style="background:rgba(255,255,255,0.05); padding:12px; border-radius:8px;">
+        <small style="color:var(--muted);">観覧料・入園料</small><br>
+        <strong style="font-size:1.1em;">${spot.fee || '要確認'}</strong>
+      </div>
+    `));
+
+    // 2. 営業時間カード
+    let rows = "";
+    spot.periods.forEach(p => {
+      rows += `<tr><td style="padding:8px;">通年</td><td style="text-align:center;">${p.regular[0]} 〜 ${p.regular[1]}</td></tr>`;
+    });
+    wrap.appendChild(card("🕒 営業時間", `
+      <table style="width:100%; border-collapse:collapse; font-size:14px;">
+        <tr style="border-bottom:1px solid #374151; color:var(--muted); font-size:12px;">
+          <th style="text-align:left; padding:8px;">期間</th><th>通常開園</th>
+        </tr>
+        ${rows}
+      </table>
+    `));
+
+    // 3. リンクカード
+    const linkCard = card("🔗 外部リンク", "");
+    const official = document.createElement('button');
+    official.className = 'btn'; official.innerHTML = '🌐 公式サイトを開く';
+    official.onclick = () => window.open(spot.links.official, '_blank');
+    linkCard.appendChild(official);
+    wrap.appendChild(linkCard);
+
+    return wrap;
+  },
+
   renderAdmin() {
     const wrap = document.createElement('div');
-    wrap.appendChild(card("🔧 施設データ追加ツール", "情報を入力すると『全上書き用JSON』が生成されます。"));
+    wrap.appendChild(card("🔧 施設データ追加", "全上書き用JSONを生成します。"));
     const form = document.createElement('div');
     form.style.padding = "0 14px";
     form.innerHTML = `
-      <div style="display:flex; flex-direction:column; gap:10px;">
+      <div style="display:flex; flex-direction:column; gap:8px;">
         <input type="text" id="add-id" placeholder="ID (例: 21bi)" class="btn" style="background:var(--bg);">
         <input type="text" id="add-name" placeholder="施設名" class="btn" style="background:var(--bg);">
         <input type="text" id="add-closed" placeholder="定休日" class="btn" style="background:var(--bg);">
         <input type="text" id="add-fee" placeholder="値段" class="btn" style="background:var(--bg);">
         <input type="text" id="add-off" placeholder="公式サイトURL" class="btn" style="background:var(--bg);">
-        <button class="btn" style="background:var(--accent); text-align:center; font-weight:bold;" onclick="SpotManager.createJSON()">完成版JSONを生成</button>
-        <div id="json-area" style="display:none; margin-top:15px; background:#000; padding:12px; border-radius:8px; border:1px solid #333;">
-          <div style="font-size:11px; color:#4caf50; margin-bottom:8px;">✅ 生成完了！ <b>spots.json の中身を全選択して、下を丸ごと貼り付けてください。</b></div>
-          <textarea id="json-res" readonly style="width:100%; height:200px; background:transparent; color:#0f0; font-family:monospace; font-size:11px; border:none; outline:none;"></textarea>
-          <button class="btn" style="margin-top:10px; padding:8px; text-align:center;" onclick="SpotManager.copyJSON()">全部コピーする</button>
+        <button class="btn" style="background:var(--accent); text-align:center;" onclick="SpotManager.createJSON()">JSON生成</button>
+        <div id="json-area" style="display:none; margin-top:10px;">
+          <textarea id="json-res" readonly style="width:100%; height:150px; background:#000; color:#0f0; font-size:10px;"></textarea>
+          <button class="btn" style="margin-top:5px; text-align:center;" onclick="SpotManager.copyJSON()">全部コピー</button>
         </div>
       </div>`;
     wrap.appendChild(form);
@@ -78,10 +124,7 @@ window.SpotManager = {
   },
 
   async createJSON() {
-    // 1. 今のデータを読み込む
     const currentSpots = await this.fetchSpots();
-    
-    // 2. 新しいデータを作る
     const newSpot = {
       id: document.getElementById('add-id').value,
       name: document.getElementById('add-name').value,
@@ -90,10 +133,7 @@ window.SpotManager = {
       links: { map: "", official: document.getElementById('add-off').value },
       periods: [{ start: 101, end: 1231, early: ["00:00", "00:00"], regular: ["09:00", "17:00"] }]
     };
-
-    // 3. 合体させて「完成品」の形にする
     const fullData = { "spots": [...currentSpots, newSpot] };
-    
     document.getElementById('json-area').style.display = "block";
     document.getElementById('json-res').value = JSON.stringify(fullData, null, 2);
   },
@@ -102,11 +142,12 @@ window.SpotManager = {
     const textarea = document.getElementById('json-res');
     textarea.select();
     document.execCommand('copy');
-    alert("コピー完了！spots.jsonを全上書きしてください。");
+    alert("コピー完了！");
   }
 };
 
 window.SpotViews = {
   spot_list: () => window.SpotManager.renderList(),
+  spot_detail: () => window.SpotManager.renderDetail(), // 汎用詳細
   admin: () => window.SpotManager.renderAdmin()
 };
