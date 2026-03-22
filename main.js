@@ -90,5 +90,6 @@ function renderMenu() {
 }
 
 renderMenu();
+
 const initial = location.hash.replace('#', '') || 'home';
 setTimeout(() => openView(initial), 150);
