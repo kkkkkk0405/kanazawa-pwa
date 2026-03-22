@@ -1,4 +1,4 @@
-const APP_VERSION = "1.2.7";
+const APP_VERSION = "1.2.8";
 const LAST_UPDATED = "2026-03-22";
 
 window.$ = (s, r = document) => r.querySelector(s);
@@ -10,7 +10,7 @@ window.titleMap = {
   admin: "管理者ツール"
 };
 
-window.openView = (name, dir = 'next') => {
+window.openView = async (name, dir = 'next') => {
   const v = $("#view"); const t = $("#viewTitle"); const b = $("#backBtn");
   if (!v || !t) return;
   
@@ -28,7 +28,8 @@ window.openView = (name, dir = 'next') => {
                (window.ShinkansenViews ? window.ShinkansenViews[name] : null);
 
   const fn = viewFn || (() => card("ようこそ", "メニューを選択してください。"));
-  v.appendChild(fn());
+  const content = await fn();
+  v.appendChild(content);
   
   location.hash = name;
   v.scrollTop = 0;
@@ -57,5 +58,17 @@ async function initializeApp() {
   const initial = location.hash.replace('#', '') || 'home';
   openView(initial);
 }
+// main.js の最後の方に追加
+let clickCount = 0;
+$("#appInfo").onclick = () => {
+  clickCount++;
+  if (clickCount >= 5) {
+    clickCount = 0; // リセット
+    alert("🔧 デベロッパーモードを起動します");
+    openView('admin');
+  }
+  // 3秒間何もしないとカウントリセット
+  setTimeout(() => { clickCount = 0; }, 3000);
+};
 
 initializeApp();
