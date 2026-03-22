@@ -84,12 +84,77 @@ window.Kenrokuen = {
       return p ? p.early[0] : null;
     } catch (e) { return null; }
   },
+  renderDetail() {
+    const wrap = document.createElement('div');
+    
+    // 1. 営業時間のまとめカード
+    const timeCard = card("🕒 営業時間のまとめ", `
+      <div style="overflow-x: auto;">
+        <table style="width:100%; border-collapse:collapse; font-size:14px; margin-top:10px;">
+          <thead>
+            <tr style="border-bottom:2px solid #374151; color:var(--muted);">
+              <th style="text-align:left; padding:8px;">期間</th>
+              <th style="padding:8px;">早朝開園</th>
+              <th style="padding:8px;">通常開園</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid #1f2937;">
+              <td style="padding:10px 8px;">3/1 〜 3/31</td>
+              <td style="text-align:center;">5:00〜</td>
+              <td style="text-align:center;">7:00〜18:00</td>
+            </tr>
+            <tr style="border-bottom:1px solid #1f2937;">
+              <td style="padding:10px 8px;">4/1 〜 8/31</td>
+              <td style="text-align:center;">4:00〜</td>
+              <td style="text-align:center;">7:00〜18:00</td>
+            </tr>
+            <tr style="border-bottom:1px solid #1f2937;">
+              <td style="padding:10px 8px;">9/1 〜 10/15</td>
+              <td style="text-align:center;">5:00〜</td>
+              <td style="text-align:center;">7:00〜18:00</td>
+            </tr>
+            <tr style="border-bottom:1px solid #1f2937;">
+              <td style="padding:10px 8px;">10/16 〜 10/31</td>
+              <td style="text-align:center;">5:00〜</td>
+              <td style="text-align:center;">8:00〜17:00</td>
+            </tr>
+            <tr style="border-bottom:1px solid #1f2937;">
+              <td style="padding:10px 8px;">11/1 〜 2月末</td>
+              <td style="text-align:center;">6:00〜</td>
+              <td style="text-align:center;">8:00〜17:00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:12px; color:var(--muted); margin-top:10px;">※最終入園は閉園30分前までです。</p>
+    `);
+    
+    // 2. 外部リンク用カード
+    const linkCard = card("🔗 関連リンク", "外部サイトへ移動します。");
+    const mapBtn = document.createElement('button');
+    mapBtn.className = 'btn';
+    mapBtn.innerHTML = '📍 Googleマップで場所を確認';
+    mapBtn.onclick = () => window.open('https://maps.app.goo.gl/9zZ1Xw5U1z9Y3jN47', '_blank');
+    
+    const officialBtn = document.createElement('button');
+    officialBtn.className = 'btn';
+    officialBtn.style.marginTop = '8px';
+    officialBtn.innerHTML = '🌐 兼六園 公式サイト';
+    officialBtn.onclick = () => window.open('https://www.pref.ishikawa.jp/siro-niwa/kenrokuen/', '_blank');
+    
+    linkCard.appendChild(mapBtn);
+    linkCard.appendChild(officialBtn);
 
-  async renderTomorrowChip(targetId) {
-    const el = document.querySelector(targetId);
-    if (!el) return;
-    const startTime = await this.getTomorrowEarly();
-    el.innerHTML = `<span>🌅 明日早朝: ${startTime || '--:--'}〜</span>`;
-    el.style.borderLeft = `3px solid #81c784`;
+    wrap.appendChild(timeCard);
+    wrap.appendChild(linkCard);
+    return wrap;
   }
 };
+
+// openViewが認識できるように登録
+window.KenrokuenViews = {
+  kenrokuen_detail: () => window.Kenrokuen.renderDetail()
+};
+
+

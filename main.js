@@ -1,5 +1,5 @@
 
-const APP_VERSION = "1.2.3";
+const APP_VERSION = "1.2.4";
 const LAST_UPDATED = "2026-03-22";
 
 window.$ = (s, r = document) => r.querySelector(s);
@@ -10,7 +10,8 @@ window.titleMap = {
   shinkansen_top: "鉄道 運行状況一覧",
   bus_hashiba_weekday: "橋場町（平日）", bus_hashiba_holiday: "橋場町（土日祝）",
   bus_library_weekday: "図書館行（平日）", bus_library_holiday: "図書館行（土日祝）",
-  bus_hashiba_timetable: "橋場町 時刻表"
+  bus_hashiba_timetable: "橋場町 時刻表",
+  kenrokuen_detail: "兼六園 詳細案内"
 };
 
 /**
@@ -34,6 +35,7 @@ window.openView = (name, dir = 'next') => {
   v.innerHTML = "";
   
   let viewFn = (window.BusViews ? window.BusViews[name] : null) || 
+                (window.KenrokuenViews ? window.KenrokuenViews[name] : null) ||
                 (window.ShinkansenViews ? window.ShinkansenViews[name] : null);
 
   if (!viewFn) {
