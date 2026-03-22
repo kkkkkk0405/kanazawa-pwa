@@ -68,7 +68,7 @@ window.SpotManager = {
     wrap.appendChild(card(spot.name, `
       <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
         <span style="padding:4px 10px; border-radius:15px; background:${status.color}; color:#fff; font-weight:bold; font-size:13px;">${status.text}</span>
-        <span style="font-size:14px;">🗓 ${spot.closed || '年中無休'}</span>
+        <span style="font-size:14px;"><strong style="color:var(--muted); margin-right:4px;">休</strong> ${spot.closed || '年中無休'}</span>
       </div>
       <div style="background:rgba(255,255,255,0.05); padding:12px; border-radius:8px;">
         <small style="color:var(--muted);">観覧料・入園料</small><br>
@@ -93,7 +93,7 @@ window.SpotManager = {
     // 3. リンクカード
     const linkCard = card("🔗 外部リンク", "");
     const official = document.createElement('button');
-    official.className = 'btn'; official.innerHTML = '🌐 公式サイトを開く';
+    official.className = 'btn'; official.innerHTML = '🌐 公式サイト';
     official.onclick = () => window.open(spot.links.official, '_blank');
     linkCard.appendChild(official);
     wrap.appendChild(linkCard);
