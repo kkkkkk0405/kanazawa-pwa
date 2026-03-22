@@ -48,63 +48,43 @@ window.openView = (name, dir = 'next') => {
   v.scrollTop = 0;
 };
 
-// 【重要】戻るボタンの挙動：深い階層から順番に判定
+// 【重要】戻るボタンの挙動
 $("#backBtn").onclick = () => {
   const h = location.hash.replace('#', '');
-  
-  // 1. 各方面メニューにいる場合 → 交通案内トップへ
-  if (h === 'bus_hashiba_menu' || h === 'bus_library_menu') {
-    return openView('bus_top', 'back');
-  }
-
-  // 2. 詳細画面（平日/祝日/時刻表）にいる場合 → 各メニューへ
-  if (h.includes('bus_hashiba_')) {
-    return openView('bus_hashiba_menu', 'back');
-  }
-  if (h.includes('bus_library_')) {
-    return openView('bus_library_menu', 'back');
-  }
-
-  // 3. 交通案内トップにいる場合 → ホームへ
-  if (h === 'bus_top') {
-    return openView('home', 'back');
-  }
-
-  // 4. その他すべての画面 → ホームへ
+  if (h === 'bus_hashiba_menu' || h === 'bus_library_menu') return openView('bus_top', 'back');
+  if (h.includes('bus_hashiba_')) return openView('bus_hashiba_menu', 'back');
+  if (h.includes('bus_library_')) return openView('bus_library_menu', 'back');
+  if (h === 'bus_top') return openView('home', 'back');
   openView('home', 'back');
 };
 
-function renderMenu() {
+// メニュー描画と兼六園情報の更新を一つの関数に統合
+async function renderMenu() {
   const q = $('#quickLinks'); 
   const t = $('#transportLinks'); 
   const footer = $('#appInfo');
+
+  // 1. サイドメニューなどのリンク描画
   if (q) q.innerHTML = `<div class="link" onclick="openView('map')">🗺️ 地図</div><div class="link" onclick="openView('faq')">❓ FAQ</div>`;
   if (t) t.innerHTML = `<div class="link" onclick="openView('bus_top')">🚌 交通案内（バス）</div>`;
+
+  // 2. バージョン情報の表示
   if (footer) {
-    footer.innerHTML = `
-      <div class="version-info">
-        ver ${APP_VERSION} / Updated: ${LAST_UPDATED}
-      </div>
-    `;
+    footer.innerHTML = `<div class="version-info">ver ${APP_VERSION} / Updated: ${LAST_UPDATED}</div>`;
   }
-  // main.js
-async function renderMenu() { // async を付ける
-  const q = $('#quickLinks');
-  const t = $('#transportLinks');
-  const footer = $('#appInfo');
 
-  // ...既存の footer.innerHTML の処理...
-
-  // ★ここに追加：兼六園のチップを更新
-if (window.Kenrokuen) {
-    // 今日と明日、両方のチップを更新
-    await Kenrokuen.renderChip('#kenrokuenChip');
-    await Kenrokuen.renderTomorrowChip('#kenrokuenTomorrowChip');
+  // 3. 兼六園チップの更新（非同期）
+  if (window.Kenrokuen) {
+    try {
+      await Kenrokuen.renderChip('#kenrokuenChip');
+      await Kenrokuen.renderTomorrowChip('#kenrokuenTomorrowChip');
+    } catch (e) {
+      console.error("兼六園データの取得に失敗:", e);
+    }
+  }
 }
 
-renderMenu(); // ここで実行される
-}
-
+// 実行と初期化
 renderMenu();
 
 const initial = location.hash.replace('#', '') || 'home';
