@@ -1,26 +1,46 @@
-// js/spot_manager.js ver 1.6.0
-window.SpotManager = {
-  selectedSpotId: null,
-
-  async fetchSpots() {
-    try {
-      const res = await fetch('data/spots.json');
-      const data = await res.json();
-      return data.spots || [];
-    } catch (e) { return []; }
+// js/developer.js ver 1.0.1
+window.Developer = {
+  renderAdmin() {
+    const wrap = document.createElement('div');
+    wrap.appendChild(card("🔧 施設データ追加ツール", "情報を入力すると『全上書き用JSON』が生成されます。"));
+    const form = document.createElement('div');
+    form.style.padding = "0 14px";
+    form.innerHTML = `
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <input type="text" id="add-id" placeholder="ID (例: 21bi)" class="btn" style="background:var(--bg);">
+        <input type="text" id="add-name" placeholder="施設名" class="btn" style="background:var(--bg);">
+        <input type="text" id="add-closed" placeholder="定休日" class="btn" style="background:var(--bg);">
+        <input type="text" id="add-fee" placeholder="値段" class="btn" style="background:var(--bg);">
+        <input type="text" id="add-off" placeholder="公式サイトURL" class="btn" style="background:var(--bg);">
+        <button class="btn" style="background:var(--accent); text-align:center; font-weight:bold;" onclick="Developer.createJSON()">完成版JSONを生成</button>
+        <div id="json-area" style="display:none; margin-top:15px; background:#000; padding:12px; border-radius:8px; border:1px solid #333;">
+          <textarea id="json-res" readonly style="width:100%; height:200px; background:transparent; color:#0f0; font-family:monospace; font-size:11px; border:none;"></textarea>
+          <button class="btn" style="margin-top:10px; text-align:center;" onclick="Developer.copyJSON()">全部コピーする</button>
+        </div>
+      </div>`;
+    wrap.appendChild(form);
+    return wrap;
   },
 
-  // 営業中判定などのロジック（表示に必要）
-  checkStatus(spot) { /* ...既存のコードと同じ... */ },
-  _getTodayHours(spot) { /* ...既存のコードと同じ... */ },
+  async createJSON() {
+    const currentSpots = await SpotManager.fetchSpots();
+    const newSpot = {
+      id: document.getElementById('add-id').value,
+      name: document.getElementById('add-name').value,
+      closed: document.getElementById('add-closed').value,
+      fee: document.getElementById('add-fee').value,
+      links: { map: "", official: document.getElementById('add-off').value },
+      periods: [{ start: 101, end: 1231, early: ["00:00", "00:00"], regular: ["09:00", "17:00"] }]
+    };
+    const fullData = { "spots": [...currentSpots, newSpot] };
+    document.getElementById('json-area').style.display = "block";
+    document.getElementById('json-res').value = JSON.stringify(fullData, null, 2);
+  },
 
-  async renderList() { /* ...既存のコードと同じ... */ },
-  async renderDetail() { /* ...既存のコードと同じ... */ }
-};
-
-// Viewの紐付けを Developer に変更
-window.SpotViews = {
-  spot_list: () => window.SpotManager.renderList(),
-  spot_detail: () => window.SpotManager.renderDetail(),
-  admin: () => window.Developer.renderAdmin() // ここを Developer に！
+  copyJSON() {
+    const textarea = document.getElementById('json-res');
+    textarea.select();
+    document.execCommand('copy');
+    alert("コピー完了！");
+  }
 };
