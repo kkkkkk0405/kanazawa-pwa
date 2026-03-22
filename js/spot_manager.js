@@ -1,5 +1,5 @@
 // js/spot_manager.js
-window.SpotManager = {
+window.spot_list = {
   async renderList() {
     const wrap = document.createElement('div');
     const res = await fetch('data/spots.json');
