@@ -18,8 +18,8 @@ window.BusViews = {
 
   bus_hashiba_weekday() { return window.BusViews._createBusView('./data/bus-hashibamachi-weekday-20260314.json', 'weekday'); },
   bus_hashiba_holiday() { return window.BusViews._createBusView('./data/bus-hashibamachi-weekend-holidays-20260314.json', 'holiday'); },
-  bus_library_weekday() { return window.BusViews._createBusView('./data/bus-ishikawakenritsulibrary-20260320.json', 'weekday'); },
-  bus_library_holiday() { return window.BusViews._createBusView('./data/bus-ishikawakenritsulibrary-20260320.json', 'holiday'); },
+  bus_library_weekday() { return window.BusViews._createBusView('./data/bus-kenritsulibrary-20260320.json', 'weekday'); },
+  bus_library_holiday() { return window.BusViews._createBusView('./data/bus-kenritsulibrary-20260320.json', 'holiday'); },
   
   bus_hashiba_timetable() {
     const wrap = document.createElement("div"); wrap.appendChild(card("橋場町行 時刻表", "2026年3月改正版"));
