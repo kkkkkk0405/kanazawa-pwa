@@ -1,4 +1,4 @@
-// js/kenrokuen_time.js ver 1.2.5
+// js/kenrokuen.js ver 1.3.0
 window.Kenrokuen = {
   async _fetchData() {
     const res = await fetch('data/spots.json');
@@ -10,10 +10,16 @@ window.Kenrokuen = {
   async getStatus() {
     try {
       const data = await this._fetchData();
+      // 配列の中から兼六園のデータを探す
+      const spot = data.spots.find(s => s.id === 'kenrokuen');
+      if (!spot) return null;
+
       const now = new Date();
       const today = (now.getMonth() + 1) * 100 + now.getDate();
       const time = now.getHours() * 60 + now.getMinutes();
-      const p = data.periods.find(r => r.start > r.end ? (today >= r.start || today <= r.end) : (today >= r.start && today <= r.end));
+
+      // 兼六園の periods を使用
+      const p = spot.periods.find(r => r.start > r.end ? (today >= r.start || today <= r.end) : (today >= r.start && today <= r.end));
       if (!p) return null;
 
       const eO = this._toMin(p.early[0]), eC = this._toMin(p.early[1]);
@@ -40,7 +46,7 @@ window.Kenrokuen = {
     el.innerHTML = `
       <span style="font-size:1.4em;">${info.icon}</span>
       <div style="line-height:1.2; margin-left:8px;">
-        <div style="font-weight:bold; font-size:13px; margin-bottom:2px;">兼六園: ${info.text}</div>
+        <div style="font-weight:bold; font-size:12px;">兼六園: ${info.text}</div>
         <div style="font-size:10px; opacity:0.7; display:flex; gap:8px;">
           <span>🌅早朝 ${info.early}</span><span>🎫通常 ${info.reg}</span>
         </div>
@@ -48,10 +54,13 @@ window.Kenrokuen = {
     el.style.borderLeft = `4px solid ${info.color}`;
   },
 
-  renderDetail() {
+  async renderDetail() {
+    const data = await this._fetchData();
+    const spot = data.spots.find(s => s.id === 'kenrokuen');
+    if (!spot) return card("エラー", "データが見つかりませんでした。");
+
     const wrap = document.createElement('div');
     
-    // 1. 料金案内
     wrap.appendChild(card("🎫 入園料", `
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; font-size:14px;">
         <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:8px;">
@@ -64,7 +73,6 @@ window.Kenrokuen = {
       <p style="font-size:12px; color:var(--muted); margin-top:8px;">※65歳以上は公的証明書の提示で無料<br>※早朝入園時間帯は<strong>入園無料</strong></p>
     `));
 
-    // 2. 時期別スケジュール
     wrap.appendChild(card("🕒 年間スケジュール", `
       <table style="width:100%; border-collapse:collapse; font-size:13px;">
         <tr style="border-bottom:1px solid #374151; color:var(--muted);">
@@ -75,16 +83,17 @@ window.Kenrokuen = {
       </table>
     `));
     
-    // 3. 外部リンク
     const linkCard = card("🔗 リンク", "");
     const gmap = document.createElement('button');
     gmap.className = 'btn'; gmap.innerHTML = '📍 Googleマップを開く';
-    gmap.onclick = () => window.open('https://www.google.com/maps/search/?api=1&query=兼六園', '_blank');
+    // JSONのリンクを使用
+    gmap.onclick = () => window.open(spot.links.map, '_blank');
     
     const official = document.createElement('button');
     official.className = 'btn'; official.style.marginTop = '8px';
     official.innerHTML = '🌐 公式サイト（石川県）';
-    official.onclick = () => window.open('https://www.pref.ishikawa.jp/siro-niwa/kenrokuen/', '_blank');
+    // JSONのリンクを使用
+    official.onclick = () => window.open(spot.links.official, '_blank');
     
     linkCard.appendChild(gmap); linkCard.appendChild(official);
     wrap.appendChild(linkCard);

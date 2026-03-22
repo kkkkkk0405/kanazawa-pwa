@@ -1,11 +1,27 @@
 {
-  "id": "kenrokuen",
-  "name": "兼六園",
-  "periods": [
-    { "start": 301, "end": 331, "early": ["05:00", "06:45"], "regular": ["07:00", "18:00"] },
-    { "start": 401, "end": 831, "early": ["04:00", "06:45"], "regular": ["07:00", "18:00"] },
-    { "start": 901, "end": 1015, "early": ["05:00", "06:45"], "regular": ["07:00", "18:00"] },
-    { "start": 1016, "end": 1031, "early": ["05:00", "07:45"], "regular": ["08:00", "17:00"] },
-    { "start": 1101, "end": 229, "early": ["06:00", "07:45"], "regular": ["08:00", "17:00"] }
+  "spots": [
+    {
+      "id": "kenrokuen",
+      "name": "兼六園",
+      "links": {
+        "map": "http://googleusercontent.com/maps.google.com/kenrokuen",
+        "official": "https://www.pref.ishikawa.jp/siro-niwa/kenrokuen/"
+      },
+      "periods": [
+        { "start": 301, "end": 331, "early": ["05:00", "06:45"], "regular": ["07:00", "18:00"] },
+        { "start": 1101, "end": 229, "early": ["06:00", "07:45"], "regular": ["08:00", "17:00"] }
+      ]
+    },
+    {
+      "id": "21bi",
+      "name": "21世紀美術館",
+      "links": {
+        "map": "https://maps.app.goo.gl/uXv7q8h4nB8L3Uu181bi",
+        "official": "https://www.kanazawa21.jp/"
+      },
+      "periods": [
+        { "start": 101, "end": 1231, "early": ["00:00", "00:00"], "regular": ["10:00", "18:00"] }
+      ]
+    }
   ]
 }

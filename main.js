@@ -1,4 +1,4 @@
-const APP_VERSION = "1.2.5";
+const APP_VERSION = "1.2.6";
 const LAST_UPDATED = "2026-03-22";
 
 window.$ = (s, r = document) => r.querySelector(s);
