@@ -83,6 +83,30 @@
           ]
         }
       ]
+    },
+    {
+      "id": "kanazawacastle",
+      "name": "金沢城公園",
+      "closed": "3月1日 〜 10月15日: 07:00 〜 18:00  10月16日 〜 2月末: 08:00 〜 17:00",
+      "fee": "入園無料（菱櫓・五十間長屋などは大人320円）",
+      "links": {
+        "map": "",
+        "official": "https://www.pref.ishikawa.jp/siro-niwa/kanazawajou/"
+      },
+      "periods": [
+        {
+          "start": 101,
+          "end": 1231,
+          "early": [
+            "00:00",
+            "00:00"
+          ],
+          "regular": [
+            "09:00",
+            "17:00"
+          ]
+        }
+      ]
     }
   ]
 }
