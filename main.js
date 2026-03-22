@@ -1,5 +1,5 @@
 
-const APP_VERSION = "1.2.2";
+const APP_VERSION = "1.2.3";
 const LAST_UPDATED = "2026-03-22";
 
 window.$ = (s, r = document) => r.querySelector(s);
@@ -96,9 +96,10 @@ async function renderMenu() { // async を付ける
   // ...既存の footer.innerHTML の処理...
 
   // ★ここに追加：兼六園のチップを更新
-  if (window.Kenrokuen) {
+if (window.Kenrokuen) {
+    // 今日と明日、両方のチップを更新
     await Kenrokuen.renderChip('#kenrokuenChip');
-  }
+    await Kenrokuen.renderTomorrowChip('#kenrokuenTomorrowChip');
 }
 
 renderMenu(); // ここで実行される

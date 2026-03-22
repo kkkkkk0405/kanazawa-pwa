@@ -31,6 +31,52 @@ window.Kenrokuen = {
     } catch (e) {
       return { text: "データエラー", color: "#f44336", icon: "❌" };
     }
+    // js/kenrokuen_time.js に追加・修正
+window.Kenrokuen = {
+  // ...既存の getStatus などの下に追加...
+
+  /**
+   * 明日の早朝開園時間を取得する
+   */
+  async getTomorrowEarly() {
+    try {
+      const res = await fetch('data/spots.json'); // パスに注意！
+      const data = await res.json();
+      
+      // 「明日」の日付オブジェクトを作成
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1); // 1日足す
+      
+      const tMMDD = (tomorrow.getMonth() + 1) * 100 + tomorrow.getDate();
+
+      // 明日の日付が含まれる期間を探す
+      const p = data.periods.find(r => 
+        r.start > r.end ? (tMMDD >= r.start || tMMDD <= r.end) : (tMMDD >= r.start && tMMDD <= r.end)
+      );
+
+      return p ? p.early[0] : null;
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
+  },
+
+  /**
+   * 明日のチップを描画する
+   */
+  async renderTomorrowChip(targetId) {
+    const el = document.querySelector(targetId);
+    if (!el) return;
+
+    const startTime = await this.getTomorrowEarly();
+    if (startTime) {
+      el.innerHTML = `<span>🌅 明日早朝: ${startTime}〜</span>`;
+      el.style.borderLeft = `3px solid #4caf50`; // 早朝なので緑系
+    } else {
+      el.innerHTML = `<span>🌅 明日早朝: --:--</span>`;
+    }
+  }
+};
   },
 
   // チップのHTMLを生成して更新する
