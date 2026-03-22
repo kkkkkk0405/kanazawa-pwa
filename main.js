@@ -87,6 +87,21 @@ function renderMenu() {
       </div>
     `;
   }
+  // main.js
+async function renderMenu() { // async を付ける
+  const q = $('#quickLinks');
+  const t = $('#transportLinks');
+  const footer = $('#appInfo');
+
+  // ...既存の footer.innerHTML の処理...
+
+  // ★ここに追加：兼六園のチップを更新
+  if (window.Kenrokuen) {
+    await Kenrokuen.renderChip('#kenrokuenChip');
+  }
+}
+
+renderMenu(); // ここで実行される
 }
 
 renderMenu();
