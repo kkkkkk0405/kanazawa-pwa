@@ -1,19 +1,15 @@
-// js/kenrokuen_time.js ver 1.1.0
+// js/kenrokuen_time.js ver 1.2.0
 window.Kenrokuen = {
-  // 共通のデータ取得関数
   async _fetchData() {
-    // パスを 'data/spots.json' に統一（404対策）
     const res = await fetch('data/spots.json');
     if (!res.ok) throw new Error('Network response was not ok');
     return await res.json();
   },
 
-  // 時間を分に変換するヘルパー
   _toMin(s) {
     return s.split(':').reduce((h, m) => h * 60 + +m);
   },
 
-  // 現在のステータス判定
   async getStatus() {
     try {
       const data = await this._fetchData();
@@ -29,57 +25,71 @@ window.Kenrokuen = {
       const rO = this._toMin(p.regular[0]), rC = this._toMin(p.regular[1]);
       const lastEntry = rC - 30;
 
-      if (time >= eO && time < eC) return { text: "早朝開園", color: "#4caf50", icon: "🌅", hours: `${p.early[0]}~${p.early[1]}` };
-      if (time >= eC && time < rO) return { text: "入替中", color: "#ff9800", icon: "⏳", hours: `通常は${p.regular[0]}~` };
-      if (time >= rO && time < rC) {
-        if (time >= lastEntry) return { text: "最終入園終了", color: "#f44336", icon: "⚠️", hours: `閉園 ${p.regular[1]}` };
-        return { text: "開園中", color: "#4caf50", icon: "🟢", hours: `${p.regular[0]}~${p.regular[1]}` };
+      // 基本データ
+      const info = {
+        earlyHours: `${p.early[0]}〜${p.early[1]}`,
+        regHours: `${p.regular[0]}〜${p.regular[1]}`,
+        lastEntryText: `(最終入園 ${Math.floor(lastEntry/60)}:${String(lastEntry%60).padStart(2,'0')})`
+      };
+
+      // 現在の状態判定
+      if (time >= eO && time < eC) {
+        return { ...info, text: "早朝開園中", color: "#4caf50", icon: "🌅" };
+      } 
+      if (time >= eC && time < rO) {
+        return { ...info, text: "入替中", color: "#ff9800", icon: "⏳" };
       }
-      return { text: "閉園中", color: "#666", icon: "🌙", hours: `次は明日 ${p.early[0]}~` };
+      if (time >= rO && time < rC) {
+        if (time >= lastEntry) return { ...info, text: "最終入園終了", color: "#f44336", icon: "⚠️" };
+        return { ...info, text: "通常開園中", color: "#4caf50", icon: "🟢" };
+      }
+      return { ...info, text: "閉園中", color: "#666", icon: "🌙" };
     } catch (e) {
       return { text: "データエラー", color: "#f44336", icon: "❌" };
     }
   },
 
-  // 明日の早朝時間を取得
-  async getTomorrowEarly() {
-    try {
-      const data = await this._fetchData();
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      const tMMDD = (tomorrow.getMonth() + 1) * 100 + tomorrow.getDate();
-
-      const p = data.periods.find(r => r.start > r.end ? (tMMDD >= r.start || tMMDD <= r.end) : (tMMDD >= r.start && tMMDD <= r.end));
-      return p ? p.early[0] : null;
-    } catch (e) {
-      return null;
-    }
-  },
-
-  // 今日のチップ描画
   async renderChip(targetId) {
     const el = document.querySelector(targetId);
     if (!el) return;
     const info = await this.getStatus();
     if (!info) return;
 
+    // 1つの枠に情報を詰め込むレイアウト
     el.innerHTML = `
-      <div style="display:flex; align-items:center; gap:8px;">
-        <span style="font-size:1.2em;">${info.icon}</span>
-        <div>
-          <div style="font-weight:bold; font-size:12px;">兼六園: ${info.text}</div>
-          <div style="font-size:10px; opacity:0.7;">${info.hours}</div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span style="font-size:1.4em;">${info.icon}</span>
+        <div style="line-height:1.2;">
+          <div style="font-weight:bold; font-size:13px; margin-bottom:2px;">兼六園: ${info.text}</div>
+          <div style="font-size:10px; opacity:0.8; display:flex; gap:8px;">
+            <span>🌅早朝 ${info.earlyHours}</span>
+            <span>🎫通常 ${info.regHours}</span>
+          </div>
+          ${info.text === "通常開園中" || info.text === "最終入園終了" ? 
+            `<div style="font-size:9px; opacity:0.6; color:#ffb74d;">${info.lastEntryText}</div>` : ''}
         </div>
       </div>`;
-    el.style.borderLeft = `3px solid ${info.color}`;
+    el.style.borderLeft = `4px solid ${info.color}`;
+    el.style.paddingRight = `15px`; // 少し幅を持たせる
   },
 
-  // 明日のチップ描画
+  // 明日の早朝時間はそのまま残す
+  async getTomorrowEarly() {
+    try {
+      const data = await this._fetchData();
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const tMMDD = (tomorrow.getMonth() + 1) * 100 + tomorrow.getDate();
+      const p = data.periods.find(r => r.start > r.end ? (tMMDD >= r.start || tMMDD <= r.end) : (tMMDD >= r.start && tMMDD <= r.end));
+      return p ? p.early[0] : null;
+    } catch (e) { return null; }
+  },
+
   async renderTomorrowChip(targetId) {
     const el = document.querySelector(targetId);
     if (!el) return;
     const startTime = await this.getTomorrowEarly();
     el.innerHTML = `<span>🌅 明日早朝: ${startTime || '--:--'}〜</span>`;
-    el.style.borderLeft = `3px solid #4caf50`;
+    el.style.borderLeft = `3px solid #81c784`;
   }
 };
