@@ -1,4 +1,7 @@
-// main.js ver 1.3.3
+
+const APP_VERSION = "1.2.1";
+const LAST_UPDATED = "2026-03-22";
+
 window.$ = (s, r = document) => r.querySelector(s);
 
 window.titleMap = {
@@ -10,17 +13,28 @@ window.titleMap = {
   bus_hashiba_timetable: "橋場町 時刻表"
 };
 
-window.openView = (name) => {
+/**
+ * 画面遷移関数
+ * @param {string} name - 遷移先のID
+ * @param {string} dir - アニメーション方向 ('next' or 'back')
+ */
+window.openView = (name, dir = 'next') => {
   const v = $("#view"); const t = $("#viewTitle"); const b = $("#backBtn");
   if (!v || !t) return;
   
+  // アニメーションクラスの適用
+  v.classList.remove('slide-next', 'slide-back');
+  // 一瞬だけDOMを強制再描画させてアニメーションをリセット
+  void v.offsetWidth; 
+  v.classList.add(dir === 'back' ? 'slide-back' : 'slide-next');
+
   // 戻るボタンの表示（ホーム以外は出す）
   b.style.display = (name === 'home') ? 'none' : 'inline-block';
   t.textContent = titleMap[name] ?? "案内";
   v.innerHTML = "";
   
   let viewFn = (window.BusViews ? window.BusViews[name] : null) || 
-               (window.ShinkansenViews ? window.ShinkansenViews[name] : null);
+                (window.ShinkansenViews ? window.ShinkansenViews[name] : null);
 
   if (!viewFn) {
     if (name === 'map') viewFn = () => card("地図", "地図を準備中です。");
@@ -29,23 +43,50 @@ window.openView = (name) => {
 
   const fn = viewFn || (() => card("ようこそ", "メニューを選択してください。"));
   v.appendChild(fn());
+  
   location.hash = name;
   v.scrollTop = 0;
 };
 
-// 【重要】戻るボタンの挙動を完全に整理
+// 【重要】戻るボタンの挙動：深い階層から順番に判定
 $("#backBtn").onclick = () => {
   const h = location.hash.replace('#', '');
-  if (h.includes('bus_hashiba_')) return openView('bus_hashiba_menu');
-  if (h.includes('bus_library_')) return openView('bus_library_menu');
-  if (h === 'bus_hashiba_menu' || h === 'bus_library_menu') return openView('bus_top');
-  openView('home');
+  
+  // 1. 各方面メニューにいる場合 → 交通案内トップへ
+  if (h === 'bus_hashiba_menu' || h === 'bus_library_menu') {
+    return openView('bus_top', 'back');
+  }
+
+  // 2. 詳細画面（平日/祝日/時刻表）にいる場合 → 各メニューへ
+  if (h.includes('bus_hashiba_')) {
+    return openView('bus_hashiba_menu', 'back');
+  }
+  if (h.includes('bus_library_')) {
+    return openView('bus_library_menu', 'back');
+  }
+
+  // 3. 交通案内トップにいる場合 → ホームへ
+  if (h === 'bus_top') {
+    return openView('home', 'back');
+  }
+
+  // 4. その他すべての画面 → ホームへ
+  openView('home', 'back');
 };
 
 function renderMenu() {
-  const q = $('#quickLinks'); const t = $('#transportLinks');
+  const q = $('#quickLinks'); 
+  const t = $('#transportLinks'); 
+  const footer = $('#appInfo');
   if (q) q.innerHTML = `<div class="link" onclick="openView('map')">🗺️ 地図</div><div class="link" onclick="openView('faq')">❓ FAQ</div>`;
   if (t) t.innerHTML = `<div class="link" onclick="openView('bus_top')">🚌 交通案内（バス）</div>`;
+  if (footer) {
+    footer.innerHTML = `
+      <div class="version-info">
+        ver ${APP_VERSION} / Updated: ${LAST_UPDATED}
+      </div>
+    `;
+  }
 }
 
 renderMenu();
