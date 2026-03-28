@@ -1,4 +1,4 @@
-// js/bus.js ver 1.3.3
+// js/bus.js ver 1.3.4
 window.BusViews = {
   bus_top() {
     const wrap = document.createElement('div');
@@ -57,13 +57,21 @@ window.BusViews = {
       const nmin = nowMin(); let cand = [];
       data.operators.forEach(op => {
         const times = (type === 'weekday') ? op.weekday : op.holiday;
+        // op.name も候補に含めるよう修正
         if(times) times.forEach(i => { const tm = toMin(i.time); if (tm >= nmin) cand.push({ ...i, op: op.name, wait: tm - nmin, board: op.board_stop }); });
       });
+
       cand.sort((a, b) => a.wait - b.wait).slice(0, 3).forEach(x => {
         const waitTxt = x.wait >= 60 ? `あと ${Math.floor(x.wait / 60)}h${x.wait % 60}m` : `あと ${x.wait}分`;
-        const c = card(`発車 ${x.time}`, `${waitTxt}｜${x.op}｜北鉄${x.route || ''}番`);
         
-        // ★写真ボタン復活！
+        // --- 修正ポイント：バス会社による表示の分岐 ---
+        const busDetail = (x.op === "JRバス") 
+          ? `(${x.dest || '不明'})` 
+          : `北鉄${x.route || ''}番`;
+        
+        const c = card(`発車 ${x.time}`, `${waitTxt}｜${x.op}｜${busDetail}`);
+        
+        // 乗り場写真ボタン
         const btn = document.createElement('button');
         btn.className = 'btn'; btn.textContent = '📸 乗り場の写真';
         const imgSrc = (x.op.includes('北鉄')) ? './images/HOKUTETSUBUS_frontof_hoteltorifito.jpeg' : './images/JRBUS_frontof_hokurikubank.jpeg';
